@@ -3,6 +3,8 @@ package com.example.battleship;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.widget.ListView;
+
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
@@ -38,9 +40,9 @@ public class BattleshipClass {
     }
 
     private class ShipParameter {
-        public int HitPoint; // 耐久力
-        public int PositionX; // 位置X
-        public int PositionY; // 位置Y
+        public int HitPoint;    // 耐久力
+        public int PositionX;   // 位置X
+        public int PositionY;   // 位置Y
         public int AttackPower; // 攻撃力
     }
 
@@ -75,13 +77,32 @@ public class BattleshipClass {
      * 
      * @param pointX
      * @param pointY
+     * @param shipType
+     * @return
      */
     public void Movement(int pointX, int pointY, ShipType shipType) {
         ships.get(shipType).PositionX = pointX;
         ships.get(shipType).PositionY = pointY;
         
         // TODO ListViewにログ表示
+        String type = "";
         // 「XYへ【種類】が移動」 的な
+        switch(shipType){
+        case BATTLESHIP:
+            type = "戦艦";
+            break;
+            
+        case DESTROYER:
+            type = "駆逐艦";
+            break;
+            
+        case SUBMARINE:
+            type = "潜水艦";
+            break;
+        }
+        
+//        String ret = type + "が(" + pointX + ", " + pointY + ")へ移動";
+//        return ret;
     }
 
     /**
@@ -93,7 +114,6 @@ public class BattleshipClass {
      * ○12
      * ○●●
      * ○34
-     * 
      * 
      * @param pointX
      * @param pointY
