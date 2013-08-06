@@ -153,4 +153,40 @@ public class CommActivity extends Activity {
 
         return ipAddressStr;
     }
+    
+    public void Xxx(){
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//
+//        builder.setIcon(R.drawable.ic_launcher);
+//        builder.setTitle("Connection destination");
+//
+//        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+//        WifiInfo wifIinfo = wifiManager.getConnectionInfo();
+//        int address = wifIinfo.getIpAddress();
+//        String ipAddressStr = ((address >> 0) & 0xFF) + "." + ((address >> 8) & 0xFF) + "."
+//                + ((address >> 16) & 0xFF) + "." + ((address >> 24) & 0xFF);
+//
+//        builder.setMessage("Please specify the connection destination.\nYour IP is: " + ipAddressStr);
+//        final EditText editView = new EditText(this);
+//        builder.setView(editView);
+//
+//        builder.setPositiveButton("connect", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(MainActivity.this, "OK", Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(MainActivity.this, "CANCEL", Toast.LENGTH_LONG).show();
+//            }
+//
+//        });
+//
+//        builder.show();
+    }
 }
