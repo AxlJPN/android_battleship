@@ -15,33 +15,36 @@ import android.widget.TableRow.LayoutParams;
 
 import com.example.battleship.code.ShipType;
 
-public class BattleShip extends Activity {
-	
+public class BattleShip extends CommActivity {
+
 	BattleshipClass _battleShip = null;
 	private ArrayAdapter<Ship> _adapter;
 	private AlertDialog _alertDialog;
 	private int _selectedIndex;
 	private Button _selectedButton;
-	
+
 	// ListViewのID
 	private final int _listViewId = 100;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_battle_ship);
-		
+
+		// 端末接続設定
+		connectionSetting();
+
 		this.SetButtons(5, 5);
 		this.SetListView(5);
 		_battleShip = new BattleshipClass();
-		
+
 		_adapter = new ArrayAdapter<Ship>(this, android.R.layout.simple_list_item_single_choice);
-		
+
 		_adapter.add(new Ship(ShipType.BATTLESHIP, "戦艦"));
 		_adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦"));
 		_adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦"));
 	}
-	
+
 	/**
 	 * ボタンを動的に配置
 	 * @param  x
@@ -50,7 +53,7 @@ public class BattleShip extends Activity {
 	private void SetButtons(int x, int y){
 		int id = 0;
 		TableLayout layout = (TableLayout)findViewById(R.id.TableLayout1);
-		
+
 		for(int i = 0; i < x; i++){
 			TableRow row = new TableRow(this);
 			for(int j = 0; j < y; j++){
@@ -59,20 +62,20 @@ public class BattleShip extends Activity {
 				// IDを設定
 				button.setId(id);
 				button.setText("");
-				
+
 				row.addView(button);
-				
+
 				// ボタンイベントを追加
 				button.setOnClickListener(new OnClickButtonWhenFirst());
-				
+
 				// IDをインクリメント
 				id++;
 			}
-			
+
 			layout.addView(row);
 		}
 	}
-	
+
 	/**
 	 * リストビューを追加する
 	 * @param x
@@ -80,26 +83,26 @@ public class BattleShip extends Activity {
 	private void SetListView(int x){
 		TableLayout layout = (TableLayout)findViewById(R.id.TableLayout1);
 		TableRow row = new TableRow(this);
-		
+
 		LayoutParams param = new LayoutParams();
 		param.span = x;
-		
+
 		// ListView作成
 		ListView list = new ListView(this);
 		list.setId(_listViewId);
-		
+
 		row.addView(list, param);
 		layout.addView(row);
 	}
-	
-	
+
+
 	private class OnClickButtonWhenFirst implements OnClickListener{
 
 		@Override
 		public void onClick(View v) {
 			_selectedButton = (Button)findViewById(v.getId());
 			String buttonText = _selectedButton.getText().toString();
-			
+
 			if(buttonText != null && !buttonText.isEmpty()){
 				// 既に入力されている場合
 				AlertDialog.Builder alert = new AlertDialog.Builder(BattleShip.this);
@@ -109,20 +112,20 @@ public class BattleShip extends Activity {
 				alert.show();
 				return;
 			}
-			
+
 			AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
 			builder.setTitle("配置する船の選択");
 			builder.setSingleChoiceItems(_adapter, _selectedIndex,
 			        onDialogClickListener);
 			_alertDialog = builder.create();
 			_alertDialog.show();
-			
+
 			//button.setText("");
 		}
 	}
 
 	private DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
-        
+
         @Override
         public void onClick(DialogInterface dialog, int which) {
             _selectedIndex = which;
