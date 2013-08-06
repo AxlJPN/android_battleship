@@ -46,8 +46,7 @@ public class CommActivity extends Activity {
 
         }
     }
-
-    // ��M���̑҂���Ԃ�����
+    
     public class Wait extends AsyncTask<String, Integer, String> {
         private ServerSocket mServer;
         private Socket mSocket;
@@ -93,9 +92,6 @@ public class CommActivity extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            // Toast.makeText(context, "�X���b�h�X�^�[�g",
-            // Toast.LENGTH_SHORT).show();
 
             return messageBuilder.toString();
         }
