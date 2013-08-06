@@ -3,6 +3,8 @@ package com.example.battleship;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.example.battleship.code.ShipType;
+
 public class BattleshipClass {
 	
 	private Map<ShipType, ShipParameter> ships = new HashMap<ShipType, BattleshipClass.ShipParameter>();
