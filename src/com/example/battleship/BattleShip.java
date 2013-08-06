@@ -23,6 +23,9 @@ public class BattleShip extends Activity {
 	private int _selectedIndex;
 	private Button _selectedButton;
 	
+	// ListViewのID
+	private final int _listViewId = 100;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -81,7 +84,11 @@ public class BattleShip extends Activity {
 		LayoutParams param = new LayoutParams();
 		param.span = x;
 		
-		row.addView(new ListView(this), param);
+		// ListView作成
+		ListView list = new ListView(this);
+		list.setId(_listViewId);
+		
+		row.addView(list, param);
 		layout.addView(row);
 	}
 	
