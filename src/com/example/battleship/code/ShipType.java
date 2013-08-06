@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.code;
 
 public enum ShipType {
 	BATTLESHIP,
