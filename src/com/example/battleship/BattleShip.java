@@ -1,7 +1,6 @@
 package com.example.battleship;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,25 +19,29 @@ import com.example.battleship.code.ShipType;
 
 public class BattleShip extends Activity {
 	
+    // 変数
 	BattleshipClass _battleShip = null;
 	private ArrayAdapter<Ship> _adapter;
 	private AlertDialog _alertDialog;
 	private int _selectedIndex;
 	private Button _selectedButton;
-	private ArrayList<Integer> _btnIDs;
+	private ArrayList<ArrayList<Integer>> _btnIDs;
 	
+	// 定数
 	// ListViewのID
-	private final int _listViewId = 100;
+	private final int LISTVIEWID = 100;
+    private final int WIDTH = 5;
+    private final int HEIGHT = 5;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_battle_ship);
 		
-		_btnIDs = new ArrayList<Integer>();
+		_btnIDs = new ArrayList<ArrayList<Integer>>();
 		
-		this.SetButtons(5, 5);
-		this.SetListView(5);
+		this.SetButtons(WIDTH, HEIGHT);
+		this.SetListView(WIDTH);
 		_battleShip = new BattleshipClass();
 		
 		_adapter = new ArrayAdapter<Ship>(this, android.R.layout.simple_list_item_single_choice);
@@ -59,6 +62,7 @@ public class BattleShip extends Activity {
 		
 		for(int i = 0; i < x; i++){
 			TableRow row = new TableRow(this);
+			ArrayList<Integer> aryList = new ArrayList<Integer>();
 			for(int j = 0; j < y; j++){
 				// ボタンを生成
 				Button button = new Button(this);
@@ -72,12 +76,12 @@ public class BattleShip extends Activity {
 				button.setOnClickListener(new OnClickButtonWhenFirst());
 				
 				// ボタンIDを取得
-				_btnIDs.add(id);
+				aryList.add(id);
 				
 				// IDをインクリメント
 				id++;
 			}
-			
+            _btnIDs.add(aryList);
 			layout.addView(row);
 		}
 	}
@@ -95,7 +99,7 @@ public class BattleShip extends Activity {
 		
 		// ListView作成
 		ListView list = new ListView(this);
-		list.setId(_listViewId);
+		list.setId(LISTVIEWID);
 		
 		row.addView(list, param);
 		layout.addView(row);
@@ -107,12 +111,15 @@ public class BattleShip extends Activity {
 	 */
 	private void ClearButtonText(String selectText){
 	    // ボタンを一個ずつ見て、同じ文字が存在するか確認
-	    for(int id : _btnIDs){
-	        Button button = (Button)findViewById(id);
-	        if(button.getText().toString().equals(selectText)){
-	            // 同じ文字が見つかったらクリアする
-	            button.setText("");
-	            break;
+	    for(ArrayList<Integer> btnId : _btnIDs){
+	        for(int id : btnId)
+	        {
+    	        Button button = (Button)findViewById(id);
+    	        if(button.getText().toString().equals(selectText)){
+    	            // 同じ文字が見つかったらクリアする
+    	            button.setText("");
+    	            break;
+    	        }
 	        }
 	    }
 	}
@@ -130,6 +137,58 @@ public class BattleShip extends Activity {
 			_alertDialog = builder.create();
 			_alertDialog.show();
 		}
+	}
+	
+	/**
+	 * ゲーム開始後のボタンクリックイベント
+	 * @author N.Wada
+	 *
+	 */
+	private class OnClickButtonGameStart implements OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            // ボタンのテキストが何もない場合、何もしない
+            Button button = (Button)findViewById(v.getId());
+            if(button.getText().toString().equals("")){
+                return;
+            }
+            
+            // 行動を選択させる
+            AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
+            builder.setTitle("行動選択");
+            builder.setMessage("攻撃／移動どちらを行いますか？");
+            builder.setPositiveButton("攻撃", new DialogInterface.OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // TODO 自分を中心としたマスを赤くする
+                    // ↓X軸の考え方↓
+                    // [押されたボタンID] % WIDTH == 0 の場合、左にボタンはない
+                    // [押されたボタンID] % WIDTH == WIDTH - 1 の場合、右にボタンはない
+                    // それ以外の場合、左右にボタンがある(±1)
+                    
+                    // ↓Y軸の考え方↓
+                    // [押されたボタンID]が属している最初のArrayListが0の場合、上のボタンはない
+                    // [押されたボタンID]が属している最初のArrayListがHEIGHT - 1の場合、下にボタンはない
+                    // それ以外の場合、上下にボタンがある([押されたボタン] % HEIGHT ± HEIGHT)
+                }
+            });
+            builder.setNegativeButton("移動", new DialogInterface.OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // TODO 自分の上下左右のマスを全て青くする
+                    // ↓X軸の考え方↓
+                    // [押されたボタンID]が属している二番目のArrayListが全て対象
+
+                    // ↓Y軸の考え方↓
+                    // 各最初のArrayList中、二番目のItemが[[押されたボタンID] % HEIGHT]のものが対象
+                }
+            });
+            builder.setNeutralButton("キャンセル", null);
+        }
+	    
 	}
 
 	private DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
