@@ -63,7 +63,7 @@ public class BattleShip extends Activity {
 				row.addView(button);
 				
 				// ボタンイベントを追加
-				button.setOnClickListener(new OnClickButton());
+				button.setOnClickListener(new OnClickButtonWhenFirst());
 				
 				// IDをインクリメント
 				id++;
@@ -93,7 +93,7 @@ public class BattleShip extends Activity {
 	}
 	
 	
-	private class OnClickButton implements OnClickListener{
+	private class OnClickButtonWhenFirst implements OnClickListener{
 
 		@Override
 		public void onClick(View v) {
