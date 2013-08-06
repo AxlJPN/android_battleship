@@ -8,46 +8,41 @@ public class BattleshipClass {
 	private Map<ShipType, ShipParameter> ships = new HashMap<ShipType, BattleshipClass.ShipParameter>();
 	
 	public BattleshipClass(){
-		mBattleship = new ShipParameter();
-		mBattleship.AttackPower = 1;
-		mBattleship.HitPoint = 3;
-		mBattleship.PositionX = 0;
-		mBattleship.PositionY = 0;
-		mBattleship.Type = ShipType.BATTLESHIP;
 		
-		mDestroyer = new ShipParameter();
-		mDestroyer.AttackPower = 1;
-		mDestroyer.HitPoint = 2;
-		mDestroyer.PositionX = 0;
-		mDestroyer.PositionY = 0;
-		mDestroyer.Type = ShipType.DESTROYER;
+		// æˆ¦è‰¦ã‚’è¿½åŠ 
+		ShipParameter ship = new ShipParameter();
+		ship.AttackPower = 1;
+		ship.HitPoint = 3;
+		ship.PositionX = 0;
+		ship.PositionY = 0;
+		ships.put(ShipType.BATTLESHIP, ship);
 		
-		mSubmarine = new ShipParameter();
-		mSubmarine.AttackPower = 1;
-		mSubmarine.HitPoint = 1;
-		mSubmarine.PositionX = 0;
-		mSubmarine.PositionY = 0;
-		mSubmarine.Type = ShipType.SUBMARINE;
+		//ã€€é§†é€è‰¦ã‚’è¿½åŠ 
+		ship = new ShipParameter();
+		ship.AttackPower = 1;
+		ship.HitPoint = 2;
+		ship.PositionX = 0;
+		ship.PositionY = 0;
+		ships.put(ShipType.DESTROYER, ship);
 		
-		ships.put(ShipType.BATTLESHIP, mBattleship);
-		ships.put(ShipType.BATTLESHIP, mBattleship);
-		ships.put(ShipType.BATTLESHIP, mBattleship);
+		// æ½œæ°´è‰¦ã‚’è¿½åŠ 
+		ship = new ShipParameter();
+		ship.AttackPower = 1;
+		ship.HitPoint = 1;
+		ship.PositionX = 0;
+		ship.PositionY = 0;
+		ships.put(ShipType.SUBMARINE, ship);
 	}
 	
 	private class ShipParameter{
-		public int HitPoint;	// ‘Ï‹v—Í
-		public int PositionX;	// ˆÊ’uX
-		public int PositionY;	// ˆÊ’uY
-		public int AttackPower;	// UŒ‚—Í
-		public ShipType Type;	// ‘D‚Ìí—Ş
+		public int HitPoint;	// è€ä¹…åŠ›
+		public int PositionX;	// ä½ç½®X
+		public int PositionY;	// ä½ç½®Y
+		public int AttackPower;	// æ”»æ’ƒåŠ›
 	}
 	
-	public ShipParameter mBattleship = null;
-	public ShipParameter mDestroyer = null;
-	public ShipParameter mSubmarine = null;
-	
 	/**
-	 * ˆÊ’u‚ğİ’è‚·‚é
+	 * ä½ç½®ã‚’è¨­å®š
 	 * @param pointX
 	 * @param pointY
 	 * @param shipType
@@ -58,7 +53,7 @@ public class BattleshipClass {
 	}
 	
 	/**
-	 * UŒ‚
+	 * æ”»æ’ƒ
 	 * @param pointX
 	 * @param pointY
 	 * @param shipType
@@ -66,12 +61,12 @@ public class BattleshipClass {
 	public void AttackEnemy(int pointX, int pointY, ShipType shipType){
 		int pwr = ships.get(shipType).AttackPower;
 		
-		// TODO ’ÊMæ‚É“n‚·
+		// TODO é€šä¿¡å…ˆã«æŠ•ã’ã‚‹
 		this.AttackRolls(pointX, pointY, pwr);
 	}
 	
 	/**
-	 * ˆÚ“®
+	 * ç§»å‹•
 	 * @param pointX
 	 * @param pointY
 	 */
@@ -79,7 +74,7 @@ public class BattleshipClass {
 	}
 	
 	/**
-	 * UŒ‚”»’è
+	 * æ”»æ’ƒåˆ¤å®š
 	 * @param pointX
 	 * @param pointY
 	 * @param attackPower

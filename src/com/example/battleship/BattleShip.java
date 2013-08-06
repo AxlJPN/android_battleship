@@ -26,9 +26,9 @@ public class BattleShip extends Activity {
 	}
 	
 	/**
-	 * ƒ{ƒ^ƒ“‚ğ“®“I‚É”z’u‚·‚é
-	 * @param x ‰¡²‚É”z’u‚·‚éƒ{ƒ^ƒ“‚Ì”
-	 * @param y c²‚É”z’u‚·‚éƒ{ƒ^ƒ“‚Ì”
+	 * ãƒœã‚¿ãƒ³ã‚’å‹•çš„ã«é…ç½®
+	 * @param  x
+	 * @param  y
 	 */
 	private void SetButtons(int x, int y){
 		int id = 0;
@@ -37,18 +37,18 @@ public class BattleShip extends Activity {
 		for(int i = 0; i < x; i++){
 			TableRow row = new TableRow(this);
 			for(int j = 0; j < y; j++){
-				// ƒ{ƒ^ƒ“‚ğ“®“I‚É”z’u
+				// ãƒœã‚¿ãƒ³ã‚’ç”Ÿæˆ
 				Button button = new Button(this);
-				// ID‚Í˜A”Ô‚ÅU‚é
+				// IDã‚’è¨­å®š
 				button.setId(id);
 				button.setText("");
 				
 				row.addView(button);
 				
-				// ƒ{ƒ^ƒ“ƒNƒŠƒbƒN‚ÌƒCƒxƒ“ƒg‚ğİ’è
+				// ãƒœã‚¿ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‚’è¿½åŠ 
 				button.setOnClickListener(new OnClickButton());
 				
-				// ID‚ğƒCƒ“ƒNƒŠƒƒ“ƒg
+				// IDã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
 				id++;
 			}
 			
@@ -57,8 +57,8 @@ public class BattleShip extends Activity {
 	}
 	
 	/**
-	 * ƒƒO‚ğ•\¦‚·‚éƒOƒŠƒbƒhƒrƒ…[‚ğ”z’u‚·‚é
-	 * @param x ‰¡²‚É”z’u‚µ‚½ƒ{ƒ^ƒ“‚Ì”
+	 * ãƒªã‚¹ãƒˆãƒ“ãƒ¥ãƒ¼ã‚’è¿½åŠ ã™ã‚‹
+	 * @param x
 	 */
 	private void SetListView(int x){
 		TableLayout layout = (TableLayout)findViewById(R.id.TableLayout1);
@@ -80,10 +80,10 @@ public class BattleShip extends Activity {
 			String buttonText = button.getText().toString();
 			
 			if(buttonText != null && !buttonText.isEmpty()){
-				// ƒAƒ‰[ƒg‚ğ•\¦‚µ‚ÄI—¹
+				// æ—¢ã«å…¥åŠ›ã•ã‚Œã¦ã„ã‚‹å ´åˆ
 				AlertDialog.Builder alert = new AlertDialog.Builder(BattleShip.this);
-				alert.setTitle("ƒGƒ‰[");
-				alert.setMessage("‚·‚Å‚Éİ’è‚³‚ê‚Ä‚¢‚Ü‚·B");
+				alert.setTitle("ã‚¨ãƒ©ãƒ¼");
+				alert.setMessage("æ—¢ã«è¨­å®šã•ã‚Œã¦ã„ã¾ã™ã€‚");
 				alert.setPositiveButton("OK", null);
 				alert.show();
 				return;
