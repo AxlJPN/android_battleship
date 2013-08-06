@@ -1,5 +1,8 @@
 package com.example.battleship;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,6 +25,7 @@ public class BattleShip extends Activity {
 	private AlertDialog _alertDialog;
 	private int _selectedIndex;
 	private Button _selectedButton;
+	private ArrayList<Integer> _btnIDs;
 	
 	// ListViewのID
 	private final int _listViewId = 100;
@@ -30,6 +34,8 @@ public class BattleShip extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_battle_ship);
+		
+		_btnIDs = new ArrayList<Integer>();
 		
 		this.SetButtons(5, 5);
 		this.SetListView(5);
@@ -65,6 +71,9 @@ public class BattleShip extends Activity {
 				// ボタンイベントを追加
 				button.setOnClickListener(new OnClickButtonWhenFirst());
 				
+				// ボタンIDを取得
+				_btnIDs.add(id);
+				
 				// IDをインクリメント
 				id++;
 			}
@@ -92,32 +101,34 @@ public class BattleShip extends Activity {
 		layout.addView(row);
 	}
 	
+	/**
+	 * 選択されたテキストと同じ物を見つけてクリアする
+	 * @param selectText
+	 */
+	private void ClearButtonText(String selectText){
+	    // ボタンを一個ずつ見て、同じ文字が存在するか確認
+	    for(int id : _btnIDs){
+	        Button button = (Button)findViewById(id);
+	        if(button.getText().toString().equals(selectText)){
+	            // 同じ文字が見つかったらクリアする
+	            button.setText("");
+	            break;
+	        }
+	    }
+	}
+	
 	
 	private class OnClickButtonWhenFirst implements OnClickListener{
 
 		@Override
 		public void onClick(View v) {
 			_selectedButton = (Button)findViewById(v.getId());
-			String buttonText = _selectedButton.getText().toString();
-			
-			if(buttonText != null && !buttonText.isEmpty()){
-				// 既に入力されている場合
-				AlertDialog.Builder alert = new AlertDialog.Builder(BattleShip.this);
-				alert.setTitle("エラー");
-				alert.setMessage("既に設定されています。");
-				alert.setPositiveButton("OK", null);
-				alert.show();
-				return;
-			}
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
 			builder.setTitle("配置する船の選択");
-			builder.setSingleChoiceItems(_adapter, _selectedIndex,
-			        onDialogClickListener);
+			builder.setSingleChoiceItems(_adapter, _selectedIndex, onDialogClickListener);
 			_alertDialog = builder.create();
 			_alertDialog.show();
-			
-			//button.setText("");
 		}
 	}
 
@@ -125,8 +136,11 @@ public class BattleShip extends Activity {
         
         @Override
         public void onClick(DialogInterface dialog, int which) {
+            String selectText = _adapter.getItem(which).getShipName();
+            ClearButtonText(selectText);
+            
             _selectedIndex = which;
-            _selectedButton.setText(_adapter.getItem(which).getShipName());
+            _selectedButton.setText(selectText);
             _alertDialog.dismiss();
         }
     };
