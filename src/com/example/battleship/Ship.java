@@ -58,6 +58,13 @@ public class Ship {
         this.shipName = shipName;
         this.shortShipName = shortShipName;
     }
+    
+    @Override
+    public String toString() {
+        return this.shipName;
+    };
+    
+
 
     public ShipType getShipType() {
         return shipType;
