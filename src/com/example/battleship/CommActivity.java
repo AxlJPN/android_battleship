@@ -4,10 +4,21 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
+import android.view.Display;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.Toast;
 
 import com.example.battleship.code.ShipType;
@@ -96,7 +107,7 @@ public class CommActivity extends Activity {
         }
     }
 
-    /*
+    /**
      * 接続設定画面表示
      */
     public void connectionSetting() {
@@ -108,7 +119,7 @@ public class CommActivity extends Activity {
             this.showSelectServerCliendDialog();
     }
 
-    /*
+    /**
      * サーバー，クライアント選択画面
      */
     private void showSelectServerCliendDialog() {
@@ -148,7 +159,7 @@ public class CommActivity extends Activity {
         }
     }
 
-    /*
+    /**
      * サーバー側接続画面表示
      */
     private void showRecieveDialog() {
@@ -171,15 +182,20 @@ public class CommActivity extends Activity {
         _recieveDialog = builder.create();
         _recieveDialog.show();
         
-//        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
-
         // 待機＋ゲームスタート
-        new connectRecieve(comm, context).execute();
+        connectRecieve conRec = new connectRecieve(comm, context);
+        conRec.execute();
         
-//        mProgressDialog.dismiss();
+        this.clientIpAddress = comm.getClientIpAddress();
+        this.serverIpAddress = comm.getServerIpAddress();
+        
+        // doInBackgroundを終了させる
+        conRec.isCancelled();
+        
+        
     }
 
-    /*
+    /**
      * クライアント側接続画面表示
      */
     private void showSendDialog() {
@@ -199,6 +215,31 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー側に接続する
                 new connectSend(comm, context, editView.getText().toString()).execute();
+                
+                // Pause Test
+
+                // 新たなレイアウトをオーバーレイ
+//                RelativeLayout linear = new RelativeLayout(context);
+//                linear.setBackgroundColor(Color.parseColor("#000000"));
+//                WindowManager wm = (WindowManager)context.getSystemService(WINDOW_SERVICE);
+//                Point size = new Point();
+//                Display disp = wm.getDefaultDisplay();
+//                disp.getSize(size);
+//                RelativeLayout.LayoutParams params = 
+//                        new RelativeLayout.LayoutParams(size.x, size.y);
+//
+//                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+//                
+//                linear.setLayoutParams(params);
+////                wm.addView(linear, params);
+//                layout.addView(linear);
+                
+                // ボタンは押せないようにする
+                for(int i = 0; i < 25; i++){
+                    Button but = (Button)findViewById(i);
+                    but.setEnabled(false);
+                }
+                    
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
