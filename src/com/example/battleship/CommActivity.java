@@ -30,6 +30,7 @@ public class CommActivity extends Activity {
     protected ArrayAdapter<Ship> _adapter;
     protected AlertDialog _alertDialog;
     private AlertDialog _recieveDialog;
+    private AlertDialog _sendDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +57,12 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(result == null)
+            if (result == null)
                 Toast.makeText(context, "disconnected", Toast.LENGTH_SHORT).show();
-            else if(result.equals("1")) {
+            else if (result.equals("1")) {
                 Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
                 _recieveDialog.dismiss();
-                
+
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
@@ -89,10 +90,15 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if(bol)
+            if (bol) {
                 Toast.makeText(context, "送信しました", Toast.LENGTH_SHORT).show();
-            else
+                // 船を配置するダイアログを表示
+                _alertDialog = createSelectShipDialog(CommActivity.this);
+                _alertDialog.show();
+            } else {
                 Toast.makeText(context, "送信できませんでした", Toast.LENGTH_SHORT).show();
+                _sendDialog.show();
+            }
         }
     }
 
@@ -170,13 +176,14 @@ public class CommActivity extends Activity {
 
         _recieveDialog = builder.create();
         _recieveDialog.show();
-        
-//        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
+
+        // ProgressDialog mProgressDialog = ProgressDialog.show(context, "test",
+        // "wait", true);
 
         // 待機＋ゲームスタート
         new connectRecieve(comm, context).execute();
-        
-//        mProgressDialog.dismiss();
+
+        // mProgressDialog.dismiss();
     }
 
     /*
@@ -200,9 +207,9 @@ public class CommActivity extends Activity {
                 // サーバー側に接続する
                 new connectSend(comm, context, editView.getText().toString()).execute();
 
-                // 船を配置するダイアログを表示
-                _alertDialog = createSelectShipDialog(CommActivity.this);
-                _alertDialog.show();
+                // // 船を配置するダイアログを表示
+                // _alertDialog = createSelectShipDialog(CommActivity.this);
+                // _alertDialog.show();
             }
         });
 
@@ -216,16 +223,16 @@ public class CommActivity extends Activity {
 
         });
 
-        builder.show();
+        _sendDialog = builder.create();
+        _sendDialog.show();
     }
-    
+
     protected AlertDialog createSelectShipDialog(Context context) {
         AlertDialog dialog;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("配置する船の選択");
 
-        _adapter = new ArrayAdapter<Ship>(context,
-                android.R.layout.simple_list_item_single_choice);
+        _adapter = new ArrayAdapter<Ship>(context, android.R.layout.simple_list_item_single_choice);
 
         _adapter.add(new Ship(ShipType.BATTLESHIP, "戦艦", "B"));
         _adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦", "D"));
