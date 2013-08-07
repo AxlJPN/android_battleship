@@ -29,6 +29,7 @@ public class CommActivity extends Activity {
     protected String shortName = null;
     protected ArrayAdapter<Ship> _adapter;
     protected AlertDialog _alertDialog;
+    private AlertDialog _recieveDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +57,15 @@ public class CommActivity extends Activity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(result == null)
-                Toast.makeText(context, "unconnected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "disconnected", Toast.LENGTH_SHORT).show();
             else if(result.equals("1")) {
                 Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
+                _recieveDialog.dismiss();
+                
+                // 船を配置するダイアログを表示
+                _alertDialog = createSelectShipDialog(CommActivity.this);
+                _alertDialog.show();
+
             }
         }
     }
@@ -161,7 +168,8 @@ public class CommActivity extends Activity {
             }
         });
 
-        builder.show();
+        _recieveDialog = builder.create();
+        _recieveDialog.show();
         
 //        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
 
