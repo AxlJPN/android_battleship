@@ -55,7 +55,9 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if (result.equals("1")) {
+            if(result == null)
+                Toast.makeText(context, "unconnected", Toast.LENGTH_SHORT).show();
+            else if(result.equals("1")) {
                 Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
             }
         }
@@ -80,9 +82,10 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if (bol) {
-                Toast.makeText(context, "送信完了", Toast.LENGTH_SHORT).show();
-            }
+            if(bol)
+                Toast.makeText(context, "送信しました", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(context, "送信できませんでした", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -159,9 +162,13 @@ public class CommActivity extends Activity {
         });
 
         builder.show();
+        
+//        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
 
         // 待機＋ゲームスタート
-        new connectRecieve(comm, this).execute();
+        new connectRecieve(comm, context).execute();
+        
+//        mProgressDialog.dismiss();
     }
 
     /*
