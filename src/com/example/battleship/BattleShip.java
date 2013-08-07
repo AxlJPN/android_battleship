@@ -2,7 +2,6 @@ package com.example.battleship;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -43,17 +42,19 @@ public class BattleShip extends CommActivity {
 		
 		_btnIDs = new ArrayList<ArrayList<Integer>>();
 		
+		// マス作成
 		this.SetButtons(WIDTH, HEIGHT);
 		this.SetListView(WIDTH);
+		
 		_battleShip = new BattleshipClass();
-
 		_adapter = new ArrayAdapter<Ship>(this, android.R.layout.simple_list_item_single_choice);
 
 		_adapter.add(new Ship(ShipType.BATTLESHIP, "戦艦"));
 		_adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦"));
 		_adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦"));
+		
 	}
-
+	
 	/**
 	 * ボタンを動的に配置
 	 * @param  x
@@ -140,6 +141,8 @@ public class BattleShip extends CommActivity {
 			builder.setSingleChoiceItems(_adapter, _selectedIndex, onDialogClickListener);
 			_alertDialog = builder.create();
 			_alertDialog.show();
+			
+			_selectedButton.setOnClickListener(new OnClickButtonGameStart());
 		}
 	}
 	
@@ -151,7 +154,7 @@ public class BattleShip extends CommActivity {
 	private class OnClickButtonGameStart implements OnClickListener{
 
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             // ボタンのテキストが何もない場合、何もしない
             Button button = (Button)findViewById(v.getId());
             if(button.getText().toString().equals("")){
@@ -162,7 +165,7 @@ public class BattleShip extends CommActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
             builder.setTitle("行動選択");
             builder.setMessage("攻撃／移動どちらを行いますか？");
-            builder.setPositiveButton("攻撃", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("攻撃", new DialogInterface.OnClickListener() {
                 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -171,14 +174,14 @@ public class BattleShip extends CommActivity {
                     // [押されたボタンID] % WIDTH == 0 の場合、左にボタンはない
                     // [押されたボタンID] % WIDTH == WIDTH - 1 の場合、右にボタンはない
                     // それ以外の場合、左右にボタンがある(±1)
-                    
+
                     // ↓Y軸の考え方↓
                     // [押されたボタンID]が属している最初のArrayListが0の場合、上のボタンはない
                     // [押されたボタンID]が属している最初のArrayListがHEIGHT - 1の場合、下にボタンはない
                     // それ以外の場合、上下にボタンがある([押されたボタン] % HEIGHT ± HEIGHT)
                 }
             });
-            builder.setNegativeButton("移動", new DialogInterface.OnClickListener() {
+            builder.setNeutralButton("移動", new DialogInterface.OnClickListener() {
                 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -190,7 +193,8 @@ public class BattleShip extends CommActivity {
                     // 各最初のArrayList中、二番目のItemが[[押されたボタンID] % HEIGHT]のものが対象
                 }
             });
-            builder.setNeutralButton("キャンセル", null);
+            builder.setPositiveButton("キャンセル", null);
+            builder.show();
         }
 	    
 	}
