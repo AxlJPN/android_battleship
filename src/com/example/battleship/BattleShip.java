@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -54,6 +56,7 @@ public class BattleShip extends CommActivity {
         _adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦"));
         _adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦"));
 
+        
     }
 
     /**
@@ -310,4 +313,27 @@ public class BattleShip extends CommActivity {
             _alertDialog.dismiss();
         }
     };
+    
+    /**
+     * 自分の番終了時に操作不可にする
+     */
+    public void PauseWhenTurnEnd(){
+        TableLayout layout = (TableLayout) findViewById(R.id.TableLayout1);
+
+        // 新たなレイアウトをオーバーレイ
+        LinearLayout linear = new LinearLayout(BattleShip.this);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(WIDTH, HEIGHT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+        linear.setLayoutParams(params);
+        layout.addView(linear);
+
+        
+    }
+    
+    /**
+     * 相手の番終了時のパラメータを取得する
+     */
+    public void ReturnParamWhenTurnEnd(){
+        
+    }
 }
