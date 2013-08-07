@@ -127,6 +127,7 @@ public class CommModule {
          */
         protected Boolean doInBackground(String... args0) {
             Socket socket = null;
+            boolean ret = false;
 
             try {
                 socket = new Socket(serverIpAddress, port);
@@ -135,25 +136,30 @@ public class CommModule {
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.write(args0[0]);
                 pw.flush();
+                
+                ret = true;
 
             } catch (UnknownHostException e) {
+                ret = false;
                 Log.e("Socket", "unknownHost");
                 e.printStackTrace();
             } catch (IOException e) {
+                ret = false;
                 Log.e("Socket", "Error");
                 e.printStackTrace();
             }
-
-            if (socket != null) {
-                try {
-                    socket.close();
-                    socket = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
+            finally{
+                if (socket != null) {
+                    try {
+                        socket.close();
+                        socket = null;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
-            return true;
+            return ret;
         }
 
         @Override

@@ -76,7 +76,9 @@ public class CommActivity extends Activity {
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
             if(bol)
-                Toast.makeText(context, "送信完了", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "送信しました", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(context, "送信できませんでした", Toast.LENGTH_SHORT).show();
         }
     }
 
