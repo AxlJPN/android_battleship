@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +30,7 @@ public class BattleShip extends CommActivity implements Common {
     private Button _selectedButton;
     private ArrayList<ArrayList<Integer>> _btnIDs;
     private int _selectButtonId;
+    private Drawable _draw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ボタンを動的に配置
-     *
+     * 
      * @param x
      * @param y
      */
@@ -69,6 +71,8 @@ public class BattleShip extends CommActivity implements Common {
 
                 row.addView(button);
 
+                _draw = button.getBackground();
+
                 // ボタンイベントを追加
                 button.setOnClickListener(new OnClickButtonWhenFirst());
 
@@ -85,7 +89,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * リストビューを追加する
-     *
+     * 
      * @param x
      */
     private void SetListView(int x) {
@@ -105,7 +109,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 選択されたテキストと同じ物を見つけてクリアする
-     *
+     * 
      * @param selectText
      */
     public void ClearButtonText(String selectText) {
@@ -148,7 +152,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 配置されている船の数を返す
-     *
+     * 
      * @return 配置されている船の数
      */
     public int getShipCount() {
@@ -164,9 +168,9 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ゲーム開始後のボタンクリックイベント
-     *
+     * 
      * @author N.Wada
-     *
+     * 
      */
     private class OnClickButtonGameStart implements OnClickListener {
 
@@ -209,12 +213,11 @@ public class BattleShip extends CommActivity implements Common {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        if(btn.getText().toString().isEmpty()){
+                        if (btn.getText().toString().isEmpty()) {
                             // 移動できるのは他の船がいない箇所
                             btn.setBackgroundColor(color);
                             btn.setOnClickListener(new OnClickMoveButton());
-                        }
-                        else{
+                        } else {
                             // 他の船がいる場合、onClickListenerをクリアする
                             btn.setOnClickListener(null);
                         }
@@ -226,12 +229,11 @@ public class BattleShip extends CommActivity implements Common {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        if(btn.getText().toString().isEmpty()){
+                        if (btn.getText().toString().isEmpty()) {
                             // 移動できるのは他の船がいない箇所
                             btn.setBackgroundColor(color);
                             btn.setOnClickListener(new OnClickMoveButton());
-                        }
-                        else{
+                        } else {
                             // 他の船がいる場合、onClickListenerをクリアする
                             btn.setOnClickListener(null);
                         }
@@ -244,10 +246,11 @@ public class BattleShip extends CommActivity implements Common {
 
         /**
          * 移動先が選択された際のイベント
+         * 
          * @author N.Wada
-         *
+         * 
          */
-        private class OnClickMoveButton implements OnClickListener{
+        private class OnClickMoveButton implements OnClickListener {
 
             @Override
             public void onClick(View v) {
@@ -255,28 +258,27 @@ public class BattleShip extends CommActivity implements Common {
                 int pointY = v.getId() / WIDTH;
                 ShipType type = ShipType.BATTLESHIP;
 
-                Button btn = (Button)findViewById(_selectButtonId);
+                Button btn = (Button) findViewById(_selectButtonId);
 
                 // 移動する船の種類を取得
                 String btnText = btn.getText().toString();
-                if(btnText.equals("B")){
+                if (btnText.equals("B")) {
                     type = ShipType.BATTLESHIP;
                     ClearButtonText("B");
-                    ((Button)findViewById(v.getId())).setText("B");
-                }
-                else if(btnText.equals("D")){
+                    ((Button) findViewById(v.getId())).setText("B");
+                } else if (btnText.equals("D")) {
                     type = ShipType.DESTROYER;
                     ClearButtonText("D");
-                    ((Button)findViewById(v.getId())).setText("D");
-                }
-                else if(btnText.equals("S")){
+                    ((Button) findViewById(v.getId())).setText("D");
+                } else if (btnText.equals("S")) {
                     type = ShipType.SUBMARINE;
                     ClearButtonText("S");
-                    ((Button)findViewById(v.getId())).setText("S");
+                    ((Button) findViewById(v.getId())).setText("S");
                 }
 
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
+                SetGameStartEvent();
 
                 // 自分の番が終了する
                 Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
@@ -292,16 +294,25 @@ public class BattleShip extends CommActivity implements Common {
         /**
          * ボタンの色を解除する
          */
-        private void ClearButtonColor(){
-            for(int i = 0; i < WIDTH * HEIGHT; i++){
-                // TODO 色を戻す
-                ((Button)findViewById(i)).setBackgroundColor(Color.argb(0x0, 0xFF, 0xFF, 0xFF));
+        private void ClearButtonColor() {
+            for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                // 色を戻す
+                ((Button) findViewById(i)).setBackgroundDrawable(_draw);
+            }
+        }
+
+        /**
+         * ボタンのイベントをOnClickButtonGameStartに変更する
+         */
+        private void SetGameStartEvent() {
+            for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
             }
         }
 
         /**
          * 攻撃できるボタンのリストを取得する
-         *
+         * 
          * @param id
          * @return
          */
