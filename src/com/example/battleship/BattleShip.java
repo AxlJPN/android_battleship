@@ -281,7 +281,7 @@ public class BattleShip extends CommActivity implements Common {
                 // 自分の番が終了する
                 Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
                 // 終了したことを相手側に送信する
-                moveSend mvSend = new moveSend(comm, context);
+                moveSend mvSend = new moveSend(comm, BattleShip.this);
                 mvSend.execute();
                 // doInBackgroundの終了
                 mvSend.isCancelled();
