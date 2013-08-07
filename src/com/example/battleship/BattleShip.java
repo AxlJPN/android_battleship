@@ -377,14 +377,14 @@ public class BattleShip extends CommActivity implements Common {
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
                     // 最下段左端
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + 1));
                 } else {
                     // 左端
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + WIDTH));
                     buttonIDs.add((Button) findViewById(id + WIDTH + 1));
                 }
@@ -399,16 +399,16 @@ public class BattleShip extends CommActivity implements Common {
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
                     // 最下段右端
+                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id - ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - WIDTH));
                 } else {
                     // 右端
+                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id - 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
                     buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id - ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - WIDTH));
                 }
             } else {
                 // 左右にボタンがある
@@ -421,11 +421,11 @@ public class BattleShip extends CommActivity implements Common {
                     buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id - 1));
+                    buttonIDs.add((Button) findViewById(id + 1));
                 } else {
                     buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
