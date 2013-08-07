@@ -4,6 +4,7 @@ import com.example.battleship.CommModule;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
@@ -50,7 +51,9 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if (result.equals("1")) {
+            if(result == null)
+                Toast.makeText(context, "unconnected", Toast.LENGTH_SHORT).show();
+            else if(result.equals("1")) {
                 Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
             }
         }
@@ -140,9 +143,13 @@ public class CommActivity extends Activity {
         });
 
         builder.show();
+        
+//        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
 
         // 待機＋ゲームスタート
-        new connectRecieve(comm, this).execute();
+        new connectRecieve(comm, context).execute();
+        
+//        mProgressDialog.dismiss();
     }
 
     /*

@@ -55,11 +55,12 @@ public class CommModule {
             serverIpAddress = getWifiInfo();
             Log.v("Socket", "server-ip:" + serverIpAddress);
 
+            String ret = null;
             try {
                 // connect
                 mServer = new ServerSocket(port);
                 // タイムアウト時間を設定
-                mServer.setSoTimeout(30000);
+                mServer.setSoTimeout(20000);
                 mSocket = mServer.accept();
 
                 clientIpAddress = mSocket.getInetAddress().toString();
@@ -71,31 +72,32 @@ public class CommModule {
                 while ((message = in.readLine()) != null) {
                     messageBuilder.append(message);
                 }
+                ret = messageBuilder.toString();
             } catch (SocketTimeoutException e) {
                 Log.v("Socket", "Socket Timeout");
-                Toast.makeText(context, "接続がタイムアウトしました", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             } catch (IOException e) {
                 Log.e("Socket", "Error");
                 e.printStackTrace();
             }
-
-            // disconnect
-            try {
-                if (mSocket != null){
-                    mSocket.close();
-                    mSocket = null;
+            finally{
+                // disconnect
+                try {
+                    if (mSocket != null){
+                        mSocket.close();
+                        mSocket = null;
+                    }
+                    if (mServer != null){
+                        mServer.close();
+                        mServer = null;
+                    }
+                } catch (IOException e) {
+                    Log.e("Socket", "Close Error");
+                    e.printStackTrace();
                 }
-                if (mServer != null){
-                    mServer.close();
-                    mServer = null;
-                }
-            } catch (IOException e) {
-                Log.e("Socket", "Close Error");
-                e.printStackTrace();
             }
-
-            return messageBuilder.toString();
+            
+            return ret;
         }
 
         @Override
