@@ -23,7 +23,7 @@ public class BattleshipClass {
         ship.PositionY = 0;
         ships.put(ShipType.BATTLESHIP, ship);
 
-        // 　駆逐艦を追加
+        // 駆逐艦を追加
         ship = new ShipParameter();
         ship.AttackPower = 1;
         ship.HitPoint = 2;
@@ -66,11 +66,11 @@ public class BattleshipClass {
      * @param pointY
      * @param shipType
      */
-    public void AttackEnemy(int pointX, int pointY, ShipType shipType) {
+    public AttackResult AttackEnemy(int pointX, int pointY, ShipType shipType) {
         int pwr = ships.get(shipType).AttackPower;
 
-        // TODO 通信先に投げる
-        this.AttackRolls(pointX, pointY, pwr);
+        // TODO 通信先に投げ、その結果を返す
+        return this.AttackRolls(pointX, pointY, pwr);
     }
 
     /**
