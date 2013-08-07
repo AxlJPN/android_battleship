@@ -82,7 +82,7 @@ public class CommActivity extends Activity {
         }
     }
 
-    /*
+    /**
      * 接続設定画面表示
      */
     public void connectionSetting(){
@@ -94,7 +94,7 @@ public class CommActivity extends Activity {
             this.showSelectServerCliendDialog();
     }
 
-    /*
+    /**
      * サーバー，クライアント選択画面
      */
     private void showSelectServerCliendDialog() {
@@ -124,7 +124,7 @@ public class CommActivity extends Activity {
         builder.show();
     }
 
-    /*
+    /**
      * サーバー側接続画面表示
      */
     private void showRecieveDialog() {
@@ -146,15 +146,15 @@ public class CommActivity extends Activity {
 
         builder.show();
         
-//        ProgressDialog mProgressDialog = ProgressDialog.show(context, "test", "wait", true);
-
         // 待機＋ゲームスタート
         new connectRecieve(comm, context).execute();
         
-//        mProgressDialog.dismiss();
+        this.clientIpAddress = comm.getClientIpAddress();
+        this.serverIpAddress = comm.getServerIpAddress();
+        
     }
 
-    /*
+    /**
      * クライアント側接続画面表示
      */
     private void showSendDialog(){
