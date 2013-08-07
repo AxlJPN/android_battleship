@@ -2,7 +2,6 @@ package com.example.battleship;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -43,17 +42,19 @@ public class BattleShip extends CommActivity {
 		
 		_btnIDs = new ArrayList<ArrayList<Integer>>();
 		
+		// マス作成
 		this.SetButtons(WIDTH, HEIGHT);
 		this.SetListView(WIDTH);
+		
 		_battleShip = new BattleshipClass();
-
 		_adapter = new ArrayAdapter<Ship>(this, android.R.layout.simple_list_item_single_choice);
 
 		_adapter.add(new Ship(ShipType.BATTLESHIP, "戦艦"));
 		_adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦"));
 		_adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦"));
+		
 	}
-
+	
 	/**
 	 * ボタンを動的に配置
 	 * @param  x
@@ -140,6 +141,8 @@ public class BattleShip extends CommActivity {
 			builder.setSingleChoiceItems(_adapter, _selectedIndex, onDialogClickListener);
 			_alertDialog = builder.create();
 			_alertDialog.show();
+			
+			_selectedButton.setOnClickListener(new OnClickButtonGameStart());
 		}
 	}
 	
@@ -151,7 +154,7 @@ public class BattleShip extends CommActivity {
 	private class OnClickButtonGameStart implements OnClickListener{
 
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             // ボタンのテキストが何もない場合、何もしない
             Button button = (Button)findViewById(v.getId());
             if(button.getText().toString().equals("")){
@@ -171,7 +174,7 @@ public class BattleShip extends CommActivity {
                     // [押されたボタンID] % WIDTH == 0 の場合、左にボタンはない
                     // [押されたボタンID] % WIDTH == WIDTH - 1 の場合、右にボタンはない
                     // それ以外の場合、左右にボタンがある(±1)
-                    
+                    int id = v.getId();
                     // ↓Y軸の考え方↓
                     // [押されたボタンID]が属している最初のArrayListが0の場合、上のボタンはない
                     // [押されたボタンID]が属している最初のArrayListがHEIGHT - 1の場合、下にボタンはない
@@ -191,6 +194,7 @@ public class BattleShip extends CommActivity {
                 }
             });
             builder.setNeutralButton("キャンセル", null);
+            builder.show();
         }
 	    
 	}
