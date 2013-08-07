@@ -190,11 +190,25 @@ public class BattleShip extends CommActivity implements Common {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ArrayList<Button> buttonIDs = GetAttackableButton(v.getId());
+                    _selectButtonId = v.getId();
+                    ArrayList<Button> buttons = GetAttackableButton(v.getId());
                     int color = Color.RED;
+                    int cnt = 0;
 
-                    for (Button btn : buttonIDs) {
-                        btn.setBackgroundColor(color);
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        Button btn = (Button) findViewById(i);
+
+                        if (i == buttons.get(cnt).getId()) {
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickAttackButton());
+                            cnt++;
+                        } else {
+                            btn.setOnClickListener(null);
+                        }
+
+                        // 対象のボタン数以上カウントがされたら処理を終了する
+                        if (cnt >= buttons.size())
+                            break;
                     }
                 }
             });
@@ -242,6 +256,38 @@ public class BattleShip extends CommActivity implements Common {
             });
             builder.setPositiveButton("キャンセル", null);
             builder.show();
+        }
+
+        /**
+         * 攻撃先が選択された際のイベント
+         * 
+         * @author N.Wada
+         * 
+         */
+        private class OnClickAttackButton implements OnClickListener {
+
+            @Override
+            public void onClick(View v) {
+                int pointX = v.getId() % WIDTH;
+                int pointY = v.getId() / WIDTH;
+                ShipType type = ShipType.BATTLESHIP;
+
+                Button btn = (Button) findViewById(_selectButtonId);
+
+                String btnText = btn.getText().toString();
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("D")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("S")) {
+                    type = ShipType.BATTLESHIP;
+                }
+
+                _battleShip.AttackEnemy(pointX, pointY, type);
+                ClearButtonColor();
+                SetGameStartEvent();
+            }
+
         }
 
         /**
