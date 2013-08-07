@@ -17,8 +17,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class CommModule {
-    Context context = null;
+    /**
+     * ポートの指定
+     */
     int port = 8080;
+    Context context = null;
     String serverIpAddress = null;
     String clientIpAddress = null;
 
@@ -26,8 +29,10 @@ public class CommModule {
         context = con;
     }
 
-    /*
+    /**
      * ソケット通信の受信を行う
+     * @author T.Sasaki
+     *
      */
     public class Recieve extends AsyncTask<String, Integer, String> {
         private ServerSocket mServer;
@@ -53,6 +58,7 @@ public class CommModule {
             try {
                 // connect
                 mServer = new ServerSocket(port);
+                // タイムアウト時間を設定
                 mServer.setSoTimeout(30000);
                 mSocket = mServer.accept();
 
@@ -98,17 +104,30 @@ public class CommModule {
         }
     }
 
+    /**
+     * ソケット通信の送信を行う
+     * @author T.Sasaki
+     */
     public class Send extends AsyncTask<String, Integer, Boolean> {
-        public Send(Context con){
+        /**
+         * コンストラクタ
+         * @param con 使用するActivityのContext
+         * @param serverIp 接続する先のIPアドレス
+         */
+        public Send(Context con, String serverIp){
             context = con;
+            serverIpAddress = serverIp;
         }
 
         @Override
+        /**
+         * @param args0: [0]:送信したい文字列
+         */
         protected Boolean doInBackground(String... args0) {
             Socket socket = null;
 
             try {
-                socket = new Socket(args0[0], port);
+                socket = new Socket(serverIpAddress, port);
                 clientIpAddress = getWifiInfo();
 
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
@@ -141,8 +160,9 @@ public class CommModule {
         }
     }
 
-    /*
+    /**
      * 自機のIPアドレスを取得する
+     * @return IPアドレス
      */
     public String getWifiInfo() {
         WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);

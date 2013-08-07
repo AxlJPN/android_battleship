@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 /**
- * 共通クラス
+ * 初期接続設定クラス
  *
  * @author T.Sasaki
  *
@@ -23,6 +23,8 @@ public class CommActivity extends Activity {
     int port = 8080;
     String serverIpAddress = null;
     String clientIpAddress = null;
+    
+    CommModule comm = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,23 +32,38 @@ public class CommActivity extends Activity {
         context = getApplicationContext();
     }
 
+    /**
+     * 初期接続の受信
+     * @author T.Sasaki
+     *
+     */
     public class connectRecieve extends CommModule.Recieve {
         public connectRecieve(CommModule commModule, Context con) {
             commModule.super(con);
         }
+        
+        @Override
+        protected String doInBackground(String... args0) {
+            return super.doInBackground(args0);
+        }
 
         @Override
         protected void onPostExecute(String result) {
+            super.onPostExecute(result);
             if (result.equals("1")) {
-                // Intent intent = new Intent(context, nextActivity.class);
-                // startActivity(intent);
+                Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /**
+     * 初期接続の送信
+     * @author T.Sasaki
+     *
+     */
     public class connectSend extends CommModule.Send {
-        public connectSend(CommModule commModule, Context con) {
-            commModule.super(con);
+        public connectSend(CommModule commModule, Context con, String serverIp) {
+            commModule.super(con, serverIp);
         }
         @Override
         protected Boolean doInBackground(String... args0) {
@@ -54,7 +71,9 @@ public class CommActivity extends Activity {
         }
         @Override
         protected void onPostExecute(Boolean bol) {
-
+            super.onPostExecute(bol);
+            if(bol)
+                Toast.makeText(context, "送信完了", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -62,7 +81,12 @@ public class CommActivity extends Activity {
      * 接続設定画面表示
      */
     public void connectionSetting(){
-        this.showSelectServerCliendDialog();
+
+        comm = new CommModule(context);
+        
+        // 接続確認
+        if(comm.getClientIpAddress() == null || comm.getServerIpAddress() == null)
+            this.showSelectServerCliendDialog();
     }
 
     /*
@@ -104,18 +128,15 @@ public class CommActivity extends Activity {
         builder.setIcon(R.drawable.ic_launcher);
         builder.setTitle("Connection destination(Server)");
 
-        CommModule comm = new CommModule(context);
         // IP取得
         builder.setMessage("Please wait.\nYour IP is: " +comm.getWifiInfo());
 
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー，クライアント選択画面にもどる
                 showSelectServerCliendDialog();
             }
-
         });
 
         builder.show();
@@ -133,13 +154,7 @@ public class CommActivity extends Activity {
         builder.setIcon(R.drawable.ic_launcher);
         builder.setTitle("Connection destination(Client)");
 
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifIinfo = wifiManager.getConnectionInfo();
-        int address = wifIinfo.getIpAddress();
-        String ipAddressStr = ((address >> 0) & 0xFF) + "." + ((address >> 8) & 0xFF) + "."
-                + ((address >> 16) & 0xFF) + "." + ((address >> 24) & 0xFF);
-
-        builder.setMessage("Please specify the connection destination.\nYour IP is: " + ipAddressStr);
+        builder.setMessage("Please specify the connection destination.\nYour IP is: " + comm.getWifiInfo());
         final EditText editView = new EditText(this);
         builder.setView(editView);
 
@@ -147,7 +162,8 @@ public class CommActivity extends Activity {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
+                // サーバー側に接続する
+                new connectSend(comm, context, editView.getText().toString()).execute();
             }
         });
 
