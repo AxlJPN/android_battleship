@@ -25,9 +25,9 @@ import com.example.battleship.code.ShipType;
 
 /**
  * 初期接続設定クラス
- * 
+ *
  * @author T.Sasaki
- * 
+ *
  */
 public class CommActivity extends Activity {
     Context context = null;
@@ -41,6 +41,8 @@ public class CommActivity extends Activity {
     protected ArrayAdapter<Ship> _adapter;
     protected AlertDialog _alertDialog;
     private AlertDialog _recieveDialog;
+    private AlertDialog _selectServerCliendDialog;
+    private AlertDialog _sendDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +52,9 @@ public class CommActivity extends Activity {
 
     /**
      * 初期接続の受信
-     * 
+     *
      * @author T.Sasaki
-     * 
+     *
      */
     public class connectRecieve extends CommModule.Recieve {
         public connectRecieve(CommModule commModule, Context con) {
@@ -72,7 +74,7 @@ public class CommActivity extends Activity {
             else if(result.equals("1")) {
                 Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
                 _recieveDialog.dismiss();
-                
+
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
@@ -83,9 +85,9 @@ public class CommActivity extends Activity {
 
     /**
      * 初期接続の送信
-     * 
+     *
      * @author T.Sasaki
-     * 
+     *
      */
     public class connectSend extends CommModule.Send {
         public connectSend(CommModule commModule, Context con, String serverIp) {
@@ -146,7 +148,8 @@ public class CommActivity extends Activity {
             }
         });
 
-        builder.show();
+        _selectServerCliendDialog = builder.create();
+        _selectServerCliendDialog.show();
     }
 
     class onSelectShipDialogClickListener implements OnClickListener {
@@ -181,18 +184,18 @@ public class CommActivity extends Activity {
 
         _recieveDialog = builder.create();
         _recieveDialog.show();
-        
+
         // 待機＋ゲームスタート
         connectRecieve conRec = new connectRecieve(comm, context);
         conRec.execute();
-        
+
         this.clientIpAddress = comm.getClientIpAddress();
         this.serverIpAddress = comm.getServerIpAddress();
-        
+
         // doInBackgroundを終了させる
         conRec.isCancelled();
-        
-        
+
+
     }
 
     /**
@@ -215,31 +218,14 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー側に接続する
                 new connectSend(comm, context, editView.getText().toString()).execute();
-                
-                // Pause Test
 
-                // 新たなレイアウトをオーバーレイ
-//                RelativeLayout linear = new RelativeLayout(context);
-//                linear.setBackgroundColor(Color.parseColor("#000000"));
-//                WindowManager wm = (WindowManager)context.getSystemService(WINDOW_SERVICE);
-//                Point size = new Point();
-//                Display disp = wm.getDefaultDisplay();
-//                disp.getSize(size);
-//                RelativeLayout.LayoutParams params = 
-//                        new RelativeLayout.LayoutParams(size.x, size.y);
-//
-//                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-//                
-//                linear.setLayoutParams(params);
-////                wm.addView(linear, params);
-//                layout.addView(linear);
-                
-                // ボタンは押せないようにする
-                for(int i = 0; i < 25; i++){
-                    Button but = (Button)findViewById(i);
-                    but.setEnabled(false);
-                }
-                    
+//                // Pause Test
+//                // ボタンは押せないようにする
+//                for(int i = 0; i < 25; i++){
+//                    Button but = (Button)findViewById(i);
+//                    but.setEnabled(false);
+//                }
+
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
@@ -257,9 +243,10 @@ public class CommActivity extends Activity {
 
         });
 
-        builder.show();
+        _sendDialog = builder.create();
+        _sendDialog.show();
     }
-    
+
     protected AlertDialog createSelectShipDialog(Context context) {
         AlertDialog dialog;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
