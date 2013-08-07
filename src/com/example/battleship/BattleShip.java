@@ -16,7 +16,9 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+import android.widget.Toast;
 
+import com.example.battleship.CommActivity.connectRecieve;
 import com.example.battleship.code.ShipType;
 
 public class BattleShip extends CommActivity implements Common {
@@ -47,7 +49,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ボタンを動的に配置
-     * 
+     *
      * @param x
      * @param y
      */
@@ -83,7 +85,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * リストビューを追加する
-     * 
+     *
      * @param x
      */
     private void SetListView(int x) {
@@ -103,7 +105,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 選択されたテキストと同じ物を見つけてクリアする
-     * 
+     *
      * @param selectText
      */
     public void ClearButtonText(String selectText) {
@@ -146,7 +148,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 配置されている船の数を返す
-     * 
+     *
      * @return 配置されている船の数
      */
     public int getShipCount() {
@@ -162,9 +164,9 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ゲーム開始後のボタンクリックイベント
-     * 
+     *
      * @author N.Wada
-     * 
+     *
      */
     private class OnClickButtonGameStart implements OnClickListener {
 
@@ -239,7 +241,7 @@ public class BattleShip extends CommActivity implements Common {
             builder.setPositiveButton("キャンセル", null);
             builder.show();
         }
-        
+
         /**
          * 移動先が選択された際のイベント
          * @author N.Wada
@@ -252,9 +254,9 @@ public class BattleShip extends CommActivity implements Common {
                 int pointX = v.getId() % WIDTH;
                 int pointY = v.getId() / WIDTH;
                 ShipType type = ShipType.BATTLESHIP;
-                
+
                 Button btn = (Button)findViewById(_selectButtonId);
-                
+
                 // 移動する船の種類を取得
                 String btnText = btn.getText().toString();
                 if(btnText.equals("B")){
@@ -272,13 +274,21 @@ public class BattleShip extends CommActivity implements Common {
                     ClearButtonText("S");
                     ((Button)findViewById(v.getId())).setText("S");
                 }
-                
+
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
+
+                // 自分の番が終了する
+                Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
+                // 終了したことを相手側に送信する
+                moveSend mvSend = new moveSend(comm, context);
+                mvSend.execute();
+                // doInBackgroundの終了
+                mvSend.isCancelled();
             }
-            
+
         }
-        
+
         /**
          * ボタンの色を解除する
          */
@@ -291,7 +301,7 @@ public class BattleShip extends CommActivity implements Common {
 
         /**
          * 攻撃できるボタンのリストを取得する
-         * 
+         *
          * @param id
          * @return
          */
@@ -388,27 +398,4 @@ public class BattleShip extends CommActivity implements Common {
             _alertDialog.dismiss();
         }
     };
-    
-    /**
-     * 自分の番終了時に操作不可にする
-     */
-    public void PauseWhenTurnEnd(){
-        TableLayout layout = (TableLayout) findViewById(R.id.TableLayout1);
-
-        // 新たなレイアウトをオーバーレイ
-        LinearLayout linear = new LinearLayout(BattleShip.this);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(WIDTH, HEIGHT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-        linear.setLayoutParams(params);
-        layout.addView(linear);
-
-        
-    }
-    
-    /**
-     * 相手の番終了時のパラメータを取得する
-     */
-    public void ReturnParamWhenTurnEnd(){
-        
-    }
 }

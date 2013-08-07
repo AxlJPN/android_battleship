@@ -96,7 +96,7 @@ public class CommModule {
                     e.printStackTrace();
                 }
             }
-            
+
             return ret;
         }
 
@@ -136,7 +136,7 @@ public class CommModule {
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.write(args0[0]);
                 pw.flush();
-                
+
                 ret = true;
 
             } catch (UnknownHostException e) {
