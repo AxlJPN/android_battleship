@@ -8,11 +8,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+
+import com.example.battleship.code.ShipType;
 
 public class BattleShip extends CommActivity implements Common {
 
@@ -21,6 +24,7 @@ public class BattleShip extends CommActivity implements Common {
     private int _selectedIndex;
     private Button _selectedButton;
     private ArrayList<ArrayList<Integer>> _btnIDs;
+    private int _selectButtonId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,31 +195,96 @@ public class BattleShip extends CommActivity implements Common {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // 移動ができるマスを青くする
-                    int id = v.getId();
-                    int colNum = id % WIDTH;
-                    int rowNum = id / WIDTH;
+                    _selectButtonId = v.getId();
+                    int colNum = _selectButtonId % WIDTH;
+                    int rowNum = _selectButtonId / WIDTH;
                     int color = Color.BLUE;
 
                     for (int btnId : _btnIDs.get(rowNum)) {
-                        if (btnId == id) {
+                        if (btnId == _selectButtonId) {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        btn.setBackgroundColor(color);
+                        if(btn.getText().toString().isEmpty()){
+                            // 移動できるのは他の船がいない箇所
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickMoveButton());
+                        }
+                        else{
+                            // 他の船がいる場合、onClickListenerをクリアする
+                            btn.setOnClickListener(null);
+                        }
                     }
 
                     for (ArrayList<Integer> list : _btnIDs) {
                         int btnId = list.get(colNum);
-                        if (btnId == id) {
+                        if (btnId == _selectButtonId) {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        btn.setBackgroundColor(color);
+                        if(btn.getText().toString().isEmpty()){
+                            // 移動できるのは他の船がいない箇所
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickMoveButton());
+                        }
+                        else{
+                            // 他の船がいる場合、onClickListenerをクリアする
+                            btn.setOnClickListener(null);
+                        }
                     }
                 }
             });
             builder.setPositiveButton("キャンセル", null);
             builder.show();
+        }
+        
+        /**
+         * 移動先が選択された際のイベント
+         * @author N.Wada
+         *
+         */
+        private class OnClickMoveButton implements OnClickListener{
+
+            @Override
+            public void onClick(View v) {
+                int pointX = v.getId() % WIDTH;
+                int pointY = v.getId() / WIDTH;
+                ShipType type = ShipType.BATTLESHIP;
+                
+                Button btn = (Button)findViewById(_selectButtonId);
+                
+                // 移動する船の種類を取得
+                String btnText = btn.getText().toString();
+                if(btnText.equals("B")){
+                    type = ShipType.BATTLESHIP;
+                    ClearButtonText("B");
+                    ((Button)findViewById(v.getId())).setText("B");
+                }
+                else if(btnText.equals("D")){
+                    type = ShipType.DESTROYER;
+                    ClearButtonText("D");
+                    ((Button)findViewById(v.getId())).setText("D");
+                }
+                else if(btnText.equals("S")){
+                    type = ShipType.SUBMARINE;
+                    ClearButtonText("S");
+                    ((Button)findViewById(v.getId())).setText("S");
+                }
+                
+                _battleShip.Movement(pointX, pointY, type);
+                ClearButtonColor();
+            }
+            
+        }
+        
+        /**
+         * ボタンの色を解除する
+         */
+        private void ClearButtonColor(){
+            for(int i = 0; i < WIDTH * HEIGHT; i++){
+                // TODO 色を戻す
+                ((Button)findViewById(i)).setBackgroundColor(Color.argb(0x0, 0xFF, 0xFF, 0xFF));
+            }
         }
 
         /**
