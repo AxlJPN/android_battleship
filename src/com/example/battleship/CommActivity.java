@@ -62,8 +62,10 @@ public class CommActivity extends Activity {
      *
      */
     public class connectRecieve extends CommModule.Recieve {
+        static final int timeout = DEBUG ? 1 : 20000;
+
         public connectRecieve(CommModule commModule, Context con) {
-            commModule.super(con);
+            commModule.super(con, 8080, timeout);
         }
 
         @Override
@@ -74,19 +76,28 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(result == null){
-                Toast.makeText(context, "disconnected", Toast.LENGTH_SHORT).show();
-                // 受信リトライ
-
-            }
-            else if(result.equals("1")) {
-                Toast.makeText(context, "connected", Toast.LENGTH_SHORT).show();
+            if(DEBUG){
+                Toast.makeText(context, "通信できないから船選んでー", Toast.LENGTH_SHORT).show();
                 _recieveDialog.dismiss();
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
+            }else{
+                if(result == null){
+                    Toast.makeText(context, "接続できませんでした", Toast.LENGTH_SHORT).show();
+                    // 受信リトライ
 
+                }
+                else if(result.equals("1")) {
+                    Toast.makeText(context, "接続しました", Toast.LENGTH_SHORT).show();
+                    _recieveDialog.dismiss();
+
+                    // 船を配置するダイアログを表示
+                    _alertDialog = createSelectShipDialog(CommActivity.this);
+                    _alertDialog.show();
+
+                }
             }
         }
     }
@@ -110,16 +121,25 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if(bol){
-                Toast.makeText(context, "送信しました", Toast.LENGTH_SHORT).show();
+            if(DEBUG){
+                Toast.makeText(context, "通信してないけど船の配置しよう", Toast.LENGTH_SHORT).show();
                 _sendDialog.dismiss();
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
             }else{
-                Toast.makeText(context, "送信できませんでした", Toast.LENGTH_SHORT).show();
-                // リトライ
+                if(bol){
+                    Toast.makeText(context, "送信しました", Toast.LENGTH_SHORT).show();
+                    _sendDialog.dismiss();
+
+                    // 船を配置するダイアログを表示
+                    _alertDialog = createSelectShipDialog(CommActivity.this);
+                    _alertDialog.show();
+                }else{
+                    Toast.makeText(context, "送信できませんでした", Toast.LENGTH_SHORT).show();
+                    // リトライ
+                }
             }
         }
     }
@@ -328,8 +348,6 @@ public class CommActivity extends Activity {
 
         // doInBackgroundを終了させる
         conRec.isCancelled();
-
-
     }
 
     /**
