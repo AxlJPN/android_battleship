@@ -165,7 +165,7 @@ public class BattleShip extends CommActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
             builder.setTitle("行動選択");
             builder.setMessage("攻撃／移動どちらを行いますか？");
-            builder.setPositiveButton("攻撃", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("攻撃", new DialogInterface.OnClickListener() {
                 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -174,14 +174,14 @@ public class BattleShip extends CommActivity {
                     // [押されたボタンID] % WIDTH == 0 の場合、左にボタンはない
                     // [押されたボタンID] % WIDTH == WIDTH - 1 の場合、右にボタンはない
                     // それ以外の場合、左右にボタンがある(±1)
-                    int id = v.getId();
+
                     // ↓Y軸の考え方↓
                     // [押されたボタンID]が属している最初のArrayListが0の場合、上のボタンはない
                     // [押されたボタンID]が属している最初のArrayListがHEIGHT - 1の場合、下にボタンはない
                     // それ以外の場合、上下にボタンがある([押されたボタン] % HEIGHT ± HEIGHT)
                 }
             });
-            builder.setNegativeButton("移動", new DialogInterface.OnClickListener() {
+            builder.setNeutralButton("移動", new DialogInterface.OnClickListener() {
                 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -193,7 +193,7 @@ public class BattleShip extends CommActivity {
                     // 各最初のArrayList中、二番目のItemが[[押されたボタンID] % HEIGHT]のものが対象
                 }
             });
-            builder.setNeutralButton("キャンセル", null);
+            builder.setPositiveButton("キャンセル", null);
             builder.show();
         }
 	    
