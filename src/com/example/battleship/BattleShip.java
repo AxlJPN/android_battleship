@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -17,23 +16,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 
-import com.example.battleship.code.ShipType;
-
-public class BattleShip extends CommActivity {
+public class BattleShip extends CommActivity implements Common {
 
     // 変数
     BattleshipClass _battleShip = null;
-    private ArrayAdapter<Ship> _adapter;
-    private AlertDialog _alertDialog;
     private int _selectedIndex;
     private Button _selectedButton;
     private ArrayList<ArrayList<Integer>> _btnIDs;
-
-    // 定数
-    // ListViewのID
-    private final int LISTVIEWID = 100;
-    private final int WIDTH = 5;
-    private final int HEIGHT = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +39,6 @@ public class BattleShip extends CommActivity {
         this.SetListView(WIDTH);
 
         _battleShip = new BattleshipClass();
-        _adapter = new ArrayAdapter<Ship>(this, android.R.layout.simple_list_item_single_choice);
-
-        _adapter.add(new Ship(ShipType.BATTLESHIP, "戦艦"));
-        _adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦"));
-        _adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦"));
-
-        
     }
 
     /**
@@ -120,7 +102,7 @@ public class BattleShip extends CommActivity {
      * 
      * @param selectText
      */
-    private void ClearButtonText(String selectText) {
+    public void ClearButtonText(String selectText) {
         // ボタンを一個ずつ見て、同じ文字が存在するか確認
         for (ArrayList<Integer> btnId : _btnIDs) {
             for (int id : btnId) {
@@ -140,14 +122,38 @@ public class BattleShip extends CommActivity {
         public void onClick(View v) {
             _selectedButton = (Button) findViewById(v.getId());
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(BattleShip.this);
-            builder.setTitle("配置する船の選択");
-            builder.setSingleChoiceItems(_adapter, _selectedIndex, onDialogClickListener);
-            _alertDialog = builder.create();
-            _alertDialog.show();
+            ClearButtonText(shortName);
+            _selectedButton.setText(shortName);
 
-            _selectedButton.setOnClickListener(new OnClickButtonGameStart());
+            // 配置されている船の数を取得
+            int shipCount = getShipCount();
+
+            if (shipCount < 3) {
+                _alertDialog = createSelectShipDialog(BattleShip.this);
+                _alertDialog.show();
+            } else {
+                for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                    ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                }
+            }
         }
+
+    }
+
+    /**
+     * 配置されている船の数を返す
+     * 
+     * @return 配置されている船の数
+     */
+    public int getShipCount() {
+        int shipCount = 0;
+        for (int i = 0; i < Common.WIDTH * Common.HEIGHT; i++) {
+            Button button = (Button) findViewById(i);
+            if (button.getText().toString().length() > 0) {
+                shipCount++;
+            }
+        }
+        return shipCount;
     }
 
     /**

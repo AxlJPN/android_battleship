@@ -3,6 +3,7 @@ package com.example.battleship;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.Context;
 import android.widget.ListView;
 
 import com.example.battleship.code.AttackResult;
@@ -78,37 +79,18 @@ public class BattleshipClass {
      * @param pointX
      * @param pointY
      * @param shipType
-     * @return
      */
     public void Movement(int pointX, int pointY, ShipType shipType) {
         ships.get(shipType).PositionX = pointX;
         ships.get(shipType).PositionY = pointY;
         
-        // TODO ListViewにログ表示
-        String type = "";
-        // 「XYへ【種類】が移動」 的な
-        switch(shipType){
-        case BATTLESHIP:
-            type = "戦艦";
-            break;
-            
-        case DESTROYER:
-            type = "駆逐艦";
-            break;
-            
-        case SUBMARINE:
-            type = "潜水艦";
-            break;
-        }
-        
-//        String ret = type + "が(" + pointX + ", " + pointY + ")へ移動";
-//        return ret;
+        // TODO 通信先に投げる
+        String sendMsg = pointX + "," + pointY;
     }
 
     /**
      * 攻撃判定
-     * ※複数のターゲットの近くに当たった場合はどうするか
-     * (下図の1～4、中心の●に当たった場合)
+     * (下図の1～4、中心の●に当たった場合、すべての情報を送る)
      * ● = ターゲット
      * ○ = 空き
      * ○12
@@ -138,7 +120,10 @@ public class BattleshipClass {
                 if(ret != AttackResult.HIT)
                     ret = AttackResult.HIT;
             }
-            else if(x+1 == pointX || x-1 == pointX || y+1 == pointY || y-1 == pointY){
+            else if((x+1 == pointX && y+1 == pointY) ||
+                    (x+1 == pointX && y-1 == pointY) ||
+                    (x-1 == pointX && y+1 == pointY) ||
+                    (x-1 == pointX && y-1 == pointY)){
                 // X軸±1、Y軸±1の場合
                 // TODO ListViewにログを表示
                 // 「【種類】、波高し」、「【種類】、水しぶき」など
@@ -147,6 +132,8 @@ public class BattleshipClass {
                     ret = AttackResult.NEAR;
             }
         }
+        
+        // TODO 通信先に投げる
 
         return ret;
     }
