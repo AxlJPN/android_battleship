@@ -63,10 +63,10 @@ public class CommActivity extends Activity implements Common {
      * @author T.Sasaki
      * 
      */
-    public class connectRecieve extends CommModule.Recieve {
+    public class ConnectRecieve extends CommModule.Recieve {
         static final int timeout = DEBUG ? 1 : 20000;
 
-        public connectRecieve(CommModule commModule, Context con) {
+        public ConnectRecieve(CommModule commModule, Context con) {
             commModule.super(con, 8080, timeout);
         }
 
@@ -114,8 +114,8 @@ public class CommActivity extends Activity implements Common {
      * @author T.Sasaki
      * 
      */
-    public class connectSend extends CommModule.Send {
-        public connectSend(CommModule commModule, Context con, String serverIp) {
+    public class ConnectSend extends CommModule.Send {
+        public ConnectSend(CommModule commModule, Context con, String serverIp) {
             commModule.super(con, serverIp);
         }
 
@@ -217,10 +217,10 @@ public class CommActivity extends Activity implements Common {
      * @author T.Sasaki
      * 
      */
-    public class moveSend extends CommModule.Send {
+    public class MoveSend extends CommModule.Send {
         String logText = null;
 
-        public moveSend(CommModule commModule, Context con, String log) {
+        public MoveSend(CommModule commModule, Context con, String log) {
             commModule.super(con, _otherIpAddress);
             Log.v("send", "sendToIp:" + _otherIpAddress);
             logText = log;
@@ -267,12 +267,12 @@ public class CommActivity extends Activity implements Common {
      * @author T.Sasaki
      * 
      */
-    public class attackSend extends CommModule.Send {
+    public class AttackSend extends CommModule.Send {
         int pointX = 0;
         int pointY = 0;
         int power = 0;
 
-        public attackSend(CommModule commModule, Context con, int pX, int pY, int p) {
+        public AttackSend(CommModule commModule, Context con, int pX, int pY, int p) {
             commModule.super(con, _otherIpAddress);
             pointX = pX;
             pointY = pY;
@@ -359,7 +359,7 @@ public class CommActivity extends Activity implements Common {
         _selectServerCliendDialog.show();
     }
 
-    class onSelectShipDialogClickListener implements OnClickListener {
+    class OnSelectShipDialogClickListener implements OnClickListener {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -395,7 +395,7 @@ public class CommActivity extends Activity implements Common {
         _recieveDialog.show();
 
         // 待機＋ゲームスタート
-        connectRecieve conRec = new connectRecieve(comm, _context);
+        ConnectRecieve conRec = new ConnectRecieve(comm, _context);
         conRec.execute();
 
         // doInBackgroundを終了させる
@@ -422,7 +422,7 @@ public class CommActivity extends Activity implements Common {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー側に接続する
-                connectSend conSend = new connectSend(comm, _context, editView.getText().toString());
+                ConnectSend conSend = new ConnectSend(comm, _context, editView.getText().toString());
                 conSend.execute();
 
                 // doInBackgroundを終了させる
@@ -457,7 +457,7 @@ public class CommActivity extends Activity implements Common {
         _adapter.add(new Ship(ShipType.DESTROYER, "駆逐艦", "D"));
         _adapter.add(new Ship(ShipType.SUBMARINE, "潜水艦", "S"));
 
-        builder.setSingleChoiceItems(_adapter, 0, new onSelectShipDialogClickListener());
+        builder.setSingleChoiceItems(_adapter, 0, new OnSelectShipDialogClickListener());
         dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
@@ -552,7 +552,7 @@ public class CommActivity extends Activity implements Common {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // リトライ
-                moveSend mvSend = new moveSend(comm, CommActivity.this, log);
+                MoveSend mvSend = new MoveSend(comm, CommActivity.this, log);
                 mvSend.execute();
                 // doInBackgroundの終了
                 mvSend.isCancelled();

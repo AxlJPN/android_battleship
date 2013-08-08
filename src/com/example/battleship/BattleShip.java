@@ -331,7 +331,7 @@ public class BattleShip extends CommActivity {
                 LogMsg.AddLogMessage(logText);
 
                 // 終了したことを相手側に送信する
-                attackSend atSend = new attackSend(comm, _context, pointX, pointY,
+                AttackSend atSend = new AttackSend(comm, _context, pointX, pointY,
                         _battleShip.GetPower(type));
                 atSend.execute();
                 // doInBackgroundの終了
@@ -377,7 +377,7 @@ public class BattleShip extends CommActivity {
                 SetGameStartEvent();
 
                 // 終了したことを相手側に送信する
-                moveSend mvSend = new moveSend(comm, BattleShip.this, "敵" + logText);
+                MoveSend mvSend = new MoveSend(comm, BattleShip.this, "敵" + logText);
                 mvSend.execute();
                 // doInBackgroundの終了
                 mvSend.isCancelled();
