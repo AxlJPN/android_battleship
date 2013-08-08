@@ -39,6 +39,14 @@ public class BattleshipClass {
         ship.PositionY = 0;
         ships.put(ShipType.SUBMARINE, ship);
     }
+    
+    public int GetPositionX(ShipType type){
+        return ships.get(type).PositionX;
+    }
+    
+    public int GetPositionY(ShipType type){
+        return ships.get(type).PositionY;
+    }
 
     private class ShipParameter {
         public int HitPoint;    // 耐久力
