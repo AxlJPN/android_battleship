@@ -3,9 +3,6 @@ package com.example.battleship;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.Context;
-import android.widget.ListView;
-
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
@@ -78,6 +75,9 @@ public class BattleshipClass {
         int pwr = ships.get(shipType).AttackPower;
 
         // TODO 通信先に投げ、その結果を返す
+        // AttackResult result = this.AttackRolls(pointX, pointY, pwr);
+        // result -> 結果？
+        // 
         return this.AttackRolls(pointX, pointY, pwr);
     }
 
@@ -139,9 +139,14 @@ public class BattleshipClass {
                 if(ret == AttackResult.FAIL)
                     ret = AttackResult.NEAR;
             }
+            else if(/*ヒットかつ耐久力0*/true) {
+                //TODO 沈没
+            }
         }
         
         // TODO 通信先に投げる
+        
+        
 
         return ret;
     }
