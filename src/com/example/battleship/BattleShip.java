@@ -331,14 +331,15 @@ public class BattleShip extends CommActivity implements Common {
                     ClearButtonText("S");
                     ((Button) findViewById(v.getId())).setText("S");
                 }
+                
+                String logText = LogMsg.MakeMoveLogText(_battleShip.GetPositionX(type),
+                        _battleShip.GetPositionY(type), pointX, pointY, type);
+                LogMsg.AddLogMessage(logText);
+                // TODO 通信先にログを投げる
 
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
-                String logText = LogMsg.MakeMoveLogText(pointX, pointY, type);
-                LogMsg.AddLogMessage(logText);
-                // TODO 通信先にログを投げる
 
                 // 自分の番が終了する
                 Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
