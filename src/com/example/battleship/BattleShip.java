@@ -132,9 +132,13 @@ public class BattleShip extends CommActivity implements Common {
         @Override
         public void onClick(View v) {
             _selectedButton = (Button) findViewById(v.getId());
+            int buttonId = _selectedButton.getId();
+            int pointX = getPointX(buttonId);
+            int pointY = getPointY(buttonId);
 
-            ClearButtonText(shortName);
-            _selectedButton.setText(shortName);
+            ClearButtonText(_shortName);
+            _selectedButton.setText(_shortName);
+            _battleShip.SetPosition(pointX, pointY, _shipType);
 
             // 配置されている船の数を取得
             int shipCount = getShipCount();
