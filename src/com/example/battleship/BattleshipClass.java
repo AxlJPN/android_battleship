@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.Context;
+import android.view.View;
 import android.widget.Button;
 
 import com.example.battleship.code.AttackResult;
@@ -13,7 +15,10 @@ public class BattleshipClass extends BattleShip {
 
     private Map<ShipType, ShipParameter> ships = new HashMap<ShipType, BattleshipClass.ShipParameter>();
 
-    public BattleshipClass() {
+    private Context context;
+    public BattleshipClass(Context context) {
+
+        this.context = context;
 
         // 戦艦を追加
         ShipParameter ship = new ShipParameter();
@@ -65,7 +70,7 @@ public class BattleshipClass extends BattleShip {
 
     /**
      * 位置を設定
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
@@ -77,24 +82,24 @@ public class BattleshipClass extends BattleShip {
 
     /**
      * 攻撃
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
      */
-    public AttackResult AttackEnemy(int pointX, int pointY, ShipType shipType) {
+    public AttackResult AttackEnemy(int pointX, int pointY, ShipType shipType, View v, Context context) {
         int pwr = ships.get(shipType).attackPower;
 
         // TODO 通信先に投げ、その結果を返す
         // AttackResult result = this.AttackRolls(pointX, pointY, pwr);
         // result -> 結果？
         //
-        return this.AttackRolls(pointX, pointY, pwr);
+        return this.AttackRolls(pointX, pointY, pwr, v, context);
     }
 
     /**
      * 移動
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
@@ -106,13 +111,13 @@ public class BattleshipClass extends BattleShip {
 
     /**
      * 攻撃判定 (下図の1～4、中心の●に当たった場合、すべての情報を送る) ● = ターゲット ○ = 空き ○12 ○●● ○34
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param attackPower
      * @return
      */
-    public AttackResult AttackRolls(int pointX, int pointY, int attackPower) {
+    public AttackResult AttackRolls(int pointX, int pointY, int attackPower, View v, Context context) {
         AttackResult ret = AttackResult.FAIL;
         String logText;
 
@@ -145,7 +150,7 @@ public class BattleshipClass extends BattleShip {
             }
         }
 
-        ArrayList<Button> buttons = GetAttackableButton(_selectButtonId);
+        ArrayList<Button> buttons = GetAttackableButton(v.getId(), context);
         for (Button btn : buttons) {
             String btnText = btn.getText().toString();
 
@@ -167,7 +172,7 @@ public class BattleshipClass extends BattleShip {
 
     /**
      * 攻撃結果、船が沈没したか判定
-     * 
+     *
      * @param type
      * @return
      */

@@ -2,7 +2,9 @@ package com.example.battleship;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -30,6 +32,7 @@ public class BattleShip extends CommActivity {
     protected int _selectButtonId;
     private Drawable _draw;
     public static ArrayAdapter<String> _logAdapter;
+    protected Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,9 @@ public class BattleShip extends CommActivity {
         this.SetButtons(WIDTH, HEIGHT);
         this.SetListView(WIDTH);
 
-        _battleShip = new BattleshipClass();
+        context = BattleShip.this;
+        _battleShip = new BattleshipClass(context);
+
     }
 
     /**
@@ -131,7 +136,7 @@ public class BattleShip extends CommActivity {
 
         @Override
         public void onClick(View v) {
-            _selectedButton = (Button) findViewById(v.getId());
+            _selectedButton = (Button) ((Activity)context).findViewById(v.getId());
             int buttonId = _selectedButton.getId();
             int pointX = getPointX(buttonId);
             int pointY = getPointY(buttonId);
@@ -157,14 +162,14 @@ public class BattleShip extends CommActivity {
                 LogMsg.AddLogMessage("あなたが" + _playerFirstTurn + "です");
 
                 for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                    ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                    ((Button) ((Activity)context).findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
                 }
 
                 if (_playerFirstTurn.equals(FIRST_TURN)) {
                     // 先行
                     _playerFirstTurn = SECOND_TURN;
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                        ((Button) findViewById(i)).setEnabled(true);
+                        ((Button) ((Activity)context).findViewById(i)).setEnabled(true);
                     }
 
                 } else {
@@ -173,7 +178,7 @@ public class BattleShip extends CommActivity {
 
                     Toast.makeText(_context, "待機中", Toast.LENGTH_SHORT).show();
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                        ((Button) findViewById(i)).setEnabled(false);
+                        ((Button) ((Activity)context).findViewById(i)).setEnabled(false);
                     }
                     turnEndRecieve teRec = new turnEndRecieve(comm, _context);
                     teRec.execute();
@@ -191,7 +196,7 @@ public class BattleShip extends CommActivity {
     public int getShipCount() {
         int shipCount = 0;
         for (int i = 0; i < Common.WIDTH * Common.HEIGHT; i++) {
-            Button button = (Button) findViewById(i);
+            Button button = (Button) ((Activity)context).findViewById(i);
             if (button.getText().toString().length() > 0) {
                 shipCount++;
             }
@@ -210,7 +215,7 @@ public class BattleShip extends CommActivity {
         @Override
         public void onClick(final View v) {
             // ボタンのテキストが何もない場合、何もしない
-            Button button = (Button) findViewById(v.getId());
+            Button button = (Button) ((Activity)context).findViewById(v.getId());
             if (button.getText().toString().equals("")) {
                 return;
             }
@@ -224,12 +229,12 @@ public class BattleShip extends CommActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     _selectButtonId = v.getId();
-                    ArrayList<Button> buttons = GetAttackableButton(_selectButtonId);
+                    ArrayList<Button> buttons = GetAttackableButton(v.getId(), BattleShip.this);
                     int color = Color.RED;
                     int cnt = 0;
 
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                        Button btn = (Button) findViewById(i);
+                        Button btn = (Button) ((Activity)context).findViewById(i);
 
                         if (i == buttons.get(cnt).getId()) {
                             btn.setBackgroundColor(color);
@@ -259,7 +264,7 @@ public class BattleShip extends CommActivity {
                         if (btnId == _selectButtonId) {
                             continue;
                         }
-                        Button btn = (Button) findViewById(btnId);
+                        Button btn = (Button) ((Activity)context).findViewById(btnId);
                         if (btn.getText().toString().isEmpty()) {
                             // 移動できるのは他の船がいない箇所
                             btn.setBackgroundColor(color);
@@ -275,7 +280,7 @@ public class BattleShip extends CommActivity {
                         if (btnId == _selectButtonId) {
                             continue;
                         }
-                        Button btn = (Button) findViewById(btnId);
+                        Button btn = (Button) ((Activity)context).findViewById(btnId);
                         if (btn.getText().toString().isEmpty()) {
                             // 移動できるのは他の船がいない箇所
                             btn.setBackgroundColor(color);
@@ -305,7 +310,9 @@ public class BattleShip extends CommActivity {
                 int pointY = v.getId() / WIDTH;
                 ShipType type = ShipType.BATTLESHIP;
 
-                Button btn = (Button) findViewById(_selectButtonId);
+//                Button btn = (Button) ((Activity)context).findViewById(_selectButtonId);
+                Button btn = (Button) ((Activity)context).findViewById(v.getId());
+                _selectButtonId = v.getId();
 
                 String btnText = btn.getText().toString();
                 if (btnText.equals("B")) {
@@ -316,7 +323,7 @@ public class BattleShip extends CommActivity {
                     type = ShipType.BATTLESHIP;
                 }
 
-                AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type);
+                AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type, v, context);
                 ClearButtonColor();
                 SetGameStartEvent();
 
@@ -346,7 +353,7 @@ public class BattleShip extends CommActivity {
                 int pointY = v.getId() / WIDTH;
                 ShipType type = ShipType.BATTLESHIP;
 
-                Button btn = (Button) findViewById(_selectButtonId);
+                Button btn = (Button) ((Activity)context).findViewById(_selectButtonId);
 
                 String btnText = btn.getText().toString();
 
@@ -357,7 +364,7 @@ public class BattleShip extends CommActivity {
                 ClearButtonText(btnText);
 
                 // 選択されたテキストを選択したマスに設定
-                ((Button) findViewById(v.getId())).setText(btnText);
+                ((Button) ((Activity)context).findViewById(v.getId())).setText(btnText);
 
                 String logText = LogMsg.MakeMoveLogText(_battleShip.GetPositionX(type),
                         _battleShip.GetPositionY(type), pointX, pointY, type);
@@ -394,7 +401,7 @@ public class BattleShip extends CommActivity {
         private void ClearButtonColor() {
             for (int i = 0; i < WIDTH * HEIGHT; i++) {
                 // 色を戻す
-                ((Button) findViewById(i)).setBackgroundDrawable(_draw);
+                ((Button) ((Activity)context).findViewById(i)).setBackgroundDrawable(_draw);
             }
         }
 
@@ -403,7 +410,7 @@ public class BattleShip extends CommActivity {
          */
         private void SetGameStartEvent() {
             for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                ((Button) ((Activity)context).findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
             }
         }
 
@@ -428,7 +435,7 @@ public class BattleShip extends CommActivity {
      * @param id
      * @return
      */
-    protected ArrayList<Button> GetAttackableButton(int id) {
+    protected ArrayList<Button> GetAttackableButton(int id, Context context) {
         int rowNumber = id / WIDTH;
         ArrayList<Button> buttonIDs = new ArrayList<Button>();
 
@@ -437,70 +444,70 @@ public class BattleShip extends CommActivity {
             if (rowNumber == 0) {
                 // 上にボタンはない
                 // 最上段左端
-                buttonIDs.add((Button) findViewById(id + 1));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
-                buttonIDs.add((Button) findViewById(id + WIDTH + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH + 1));
             } else if (rowNumber == (HEIGHT - 1)) {
                 // 下にボタンはない
                 // 最下段左端
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
             } else {
                 // 左端
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + 1));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
-                buttonIDs.add((Button) findViewById(id + WIDTH + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH + 1));
             }
         } else if ((id % WIDTH) == (WIDTH - 1)) {
             // 右にボタンはない
             if (rowNumber == 0) {
                 // 上にボタンはない
                 // 最上段右端
-                buttonIDs.add((Button) findViewById(id - 1));
-                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
             } else if (rowNumber == (HEIGHT - 1)) {
                 // 下にボタンはない
                 // 最下段右端
-                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
             } else {
                 // 右端
-                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id - 1));
-                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
             }
         } else {
             // 左右にボタンがある
             if (rowNumber == 0) {
                 // 上にボタンはない
-                buttonIDs.add((Button) findViewById(id - 1));
-                buttonIDs.add((Button) findViewById(id + 1));
-                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
-                buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH + 1)));
             } else if (rowNumber == (HEIGHT - 1)) {
                 // 下にボタンはない
-                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                buttonIDs.add((Button) findViewById(id - 1));
-                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
             } else {
-                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                buttonIDs.add((Button) findViewById(id - 1));
-                buttonIDs.add((Button) findViewById(id + 1));
-                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                buttonIDs.add((Button) findViewById(id + WIDTH));
-                buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id - 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + 1));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + WIDTH));
+                buttonIDs.add((Button) ((Activity)context).findViewById(id + (WIDTH + 1)));
             }
         }
 
