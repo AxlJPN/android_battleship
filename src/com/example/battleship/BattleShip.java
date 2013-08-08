@@ -12,9 +12,11 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.battleship.code.AttackResult;
@@ -29,7 +31,7 @@ public class BattleShip extends CommActivity implements Common {
     private ArrayList<ArrayList<Integer>> _btnIDs;
     private int _selectButtonId;
     private Drawable _draw;
-    private ArrayAdapter<String> _logAdapter;
+    public static ArrayAdapter<String> _logAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,6 @@ public class BattleShip extends CommActivity implements Common {
         connectionSetting();
 
         _btnIDs = new ArrayList<ArrayList<Integer>>();
-        _logAdapter = new ArrayAdapter<String>(this, LISTVIEWID);
 
         // マス作成
         this.SetButtons(WIDTH, HEIGHT);
@@ -93,19 +94,20 @@ public class BattleShip extends CommActivity implements Common {
      * @param x
      */
     private void SetListView(int x) {
+        _logAdapter = new ArrayAdapter<String>(this, R.layout.log_row);
         TableLayout layout = (TableLayout) findViewById(R.id.TableLayout1);
-        TableRow row = new TableRow(this);
 
         LayoutParams param = new LayoutParams();
         param.span = x;
+        param.width = LayoutParams.MATCH_PARENT;
+        param.height = LayoutParams.MATCH_PARENT;
 
         // ListView作成
         ListView list = new ListView(this);
         list.setId(LISTVIEWID);
         list.setAdapter(_logAdapter);
 
-        row.addView(list, param);
-        layout.addView(row);
+        layout.addView(list, param);
     }
 
     /**
@@ -169,73 +171,6 @@ public class BattleShip extends CommActivity implements Common {
             }
         }
         return shipCount;
-    }
-    
-    /**
-     * 攻撃時のログメッセージを生成する
-     * @param pointX
-     * @param pointY
-     * @param result
-     * @return
-     */
-    private String MakeAttackLogText(int pointX, int pointY, ShipType type, AttackResult result){
-        String attackMsg = "";
-        switch (result) {
-        case HIT:
-            attackMsg = "命中！";
-            break;
-            
-        case NEAR:
-            attackMsg = GetShipName(type) + "、水しぶき";
-            break;
-            
-        case FAIL:
-            attackMsg = "攻撃命中せず";
-            break;
-        }
-        return "【" + pointX + "," + pointY + "への攻撃】 " + attackMsg;
-    }
-    
-    /**
-     * 移動時のログメッセージを生成する
-     * @param pointX
-     * @param pointY
-     * @param type
-     * @return
-     */
-    private String MakeMoveLogText(int pointX, int pointY, ShipType type){
-        String shipName = GetShipName(type);
-        return shipName + "が(" + pointX + "," + pointY + ")へ移動";
-    }
-    
-    /**
-     * 船の名前を返す
-     * @param type
-     * @return
-     */
-    private String GetShipName(ShipType type){
-        switch (type) {
-        case BATTLESHIP:
-            return "戦艦";
-            
-        case DESTROYER:
-            return "駆逐艦";
-            
-        case SUBMARINE:
-            return "潜水艦";
-        }
-        
-        return null;
-    }
-    
-    /**
-     * ログを表示する
-     * @param logText
-     */
-    private void AddLogMessage(String logText){
-        // TODO ログを表示する
-//        _logAdapter.add(logText);
-//        _logAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -359,8 +294,8 @@ public class BattleShip extends CommActivity implements Common {
                 ClearButtonColor();
                 SetGameStartEvent();
                 
-                String logText = MakeAttackLogText(pointX, pointY, type, result);
-                AddLogMessage(logText);
+                String logText = LogMsg.MakeAttackLogText(pointX, pointY, type, result);
+                LogMsg.AddLogMessage(logText);
             }
 
         }
@@ -401,8 +336,9 @@ public class BattleShip extends CommActivity implements Common {
                 ClearButtonColor();
                 SetGameStartEvent();
                 
-                String logText = MakeMoveLogText(pointX, pointY, type);
-                AddLogMessage(logText);
+                String logText = LogMsg.MakeMoveLogText(pointX, pointY, type);
+                LogMsg.AddLogMessage(logText);
+                // TODO 通信先にログを投げる
 
                 // 自分の番が終了する
                 Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
