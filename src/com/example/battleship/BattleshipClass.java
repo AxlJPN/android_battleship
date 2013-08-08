@@ -36,19 +36,19 @@ public class BattleshipClass {
         ship.PositionY = 0;
         ships.put(ShipType.SUBMARINE, ship);
     }
-    
-    public int GetPositionX(ShipType type){
+
+    public int GetPositionX(ShipType type) {
         return ships.get(type).PositionX;
     }
-    
-    public int GetPositionY(ShipType type){
+
+    public int GetPositionY(ShipType type) {
         return ships.get(type).PositionY;
     }
 
     private class ShipParameter {
-        public int HitPoint;    // 耐久力
-        public int PositionX;   // 位置X
-        public int PositionY;   // 位置Y
+        public int HitPoint; // 耐久力
+        public int PositionX; // 位置X
+        public int PositionY; // 位置Y
         public int AttackPower; // 攻撃力
     }
 
@@ -77,7 +77,7 @@ public class BattleshipClass {
         // TODO 通信先に投げ、その結果を返す
         // AttackResult result = this.AttackRolls(pointX, pointY, pwr);
         // result -> 結果？
-        // 
+        //
         return this.AttackRolls(pointX, pointY, pwr);
     }
 
@@ -91,19 +91,13 @@ public class BattleshipClass {
     public void Movement(int pointX, int pointY, ShipType shipType) {
         ships.get(shipType).PositionX = pointX;
         ships.get(shipType).PositionY = pointY;
-        
+
         // TODO 通信先に投げる
         String sendMsg = pointX + "," + pointY;
     }
 
     /**
-     * 攻撃判定
-     * (下図の1～4、中心の●に当たった場合、すべての情報を送る)
-     * ● = ターゲット
-     * ○ = 空き
-     * ○12
-     * ○●●
-     * ○34
+     * 攻撃判定 (下図の1～4、中心の●に当たった場合、すべての情報を送る) ● = ターゲット ○ = 空き ○12 ○●● ○34
      * 
      * @param pointX
      * @param pointY
@@ -112,41 +106,35 @@ public class BattleshipClass {
      */
     public AttackResult AttackRolls(int pointX, int pointY, int attackPower) {
         AttackResult ret = AttackResult.FAIL;
-        
-        for(ShipType type : ships.keySet()){
+
+        for (ShipType type : ships.keySet()) {
             int x = ships.get(type).PositionX;
             int y = ships.get(type).PositionY;
-            
-            if(x == pointX && y == pointY){
+
+            if (x == pointX && y == pointY) {
                 // X軸、Y軸ともにどんぴしゃの場合
                 // HPを減らす
                 ships.get(type).HitPoint -= attackPower;
-                
+
                 // TODO ListViewにログを表示
                 // 「命中！」など？
 
-                if(ret != AttackResult.HIT)
+                if (ret != AttackResult.HIT)
                     ret = AttackResult.HIT;
-            }
-            else if((x+1 == pointX && y+1 == pointY) ||
-                    (x+1 == pointX && y-1 == pointY) ||
-                    (x-1 == pointX && y+1 == pointY) ||
-                    (x-1 == pointX && y-1 == pointY)){
+            } else if ((x + 1 == pointX && y + 1 == pointY) || (x + 1 == pointX && y - 1 == pointY)
+                    || (x - 1 == pointX && y + 1 == pointY) || (x - 1 == pointX && y - 1 == pointY)) {
                 // X軸±1、Y軸±1の場合
                 // TODO ListViewにログを表示
                 // 「【種類】、波高し」、「【種類】、水しぶき」など
-                
-                if(ret == AttackResult.FAIL)
+
+                if (ret == AttackResult.FAIL)
                     ret = AttackResult.NEAR;
-            }
-            else if(/*ヒットかつ耐久力0*/true) {
-                //TODO 沈没
+            } else if (/* ヒットかつ耐久力0 */true) {
+                // TODO 沈没
             }
         }
-        
+
         // TODO 通信先に投げる
-        
-        
 
         return ret;
     }
