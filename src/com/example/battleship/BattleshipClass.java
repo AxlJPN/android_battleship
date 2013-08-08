@@ -1,12 +1,17 @@
 package com.example.battleship;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
+import android.widget.Button;
 
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
-public class BattleshipClass {
+public class BattleshipClass extends BattleShip {
 
     private Map<ShipType, ShipParameter> ships = new HashMap<ShipType, BattleshipClass.ShipParameter>();
 
@@ -58,7 +63,7 @@ public class BattleshipClass {
 
     /**
      * 位置を設定
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
@@ -70,7 +75,7 @@ public class BattleshipClass {
 
     /**
      * 攻撃
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
@@ -87,7 +92,7 @@ public class BattleshipClass {
 
     /**
      * 移動
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param shipType
@@ -102,7 +107,7 @@ public class BattleshipClass {
 
     /**
      * 攻撃判定 (下図の1～4、中心の●に当たった場合、すべての情報を送る) ● = ターゲット ○ = 空き ○12 ○●● ○34
-     * 
+     *
      * @param pointX
      * @param pointY
      * @param attackPower
@@ -136,6 +141,7 @@ public class BattleshipClass {
                 // X軸±1、Y軸±1の場合
                 // TODO ListViewにログを表示
                 // 「【種類】、波高し」、「【種類】、水しぶき」など
+                ArrayList<Button> buttons = GetAttackableButton(_selectButtonId);
 
                 if (ret == AttackResult.FAIL)
                     ret = AttackResult.NEAR;
@@ -148,7 +154,7 @@ public class BattleshipClass {
 
     /**
      * 攻撃結果、船が沈没したか判定
-     * 
+     *
      * @param type
      * @return
      */
