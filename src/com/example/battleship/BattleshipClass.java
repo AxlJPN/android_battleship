@@ -14,46 +14,46 @@ public class BattleshipClass {
 
         // 戦艦を追加
         ShipParameter ship = new ShipParameter();
-        ship.AttackPower = 1;
-        ship.HitPoint = 3;
-        ship.PositionX = 0;
-        ship.PositionY = 0;
-        ship.Sink = false;
+        ship.attackPower = 1;
+        ship.hitPoint = 3;
+        ship.positionX = 0;
+        ship.positionY = 0;
+        ship.sink = false;
         ships.put(ShipType.BATTLESHIP, ship);
 
         // 駆逐艦を追加
         ship = new ShipParameter();
-        ship.AttackPower = 1;
-        ship.HitPoint = 2;
-        ship.PositionX = 0;
-        ship.PositionY = 0;
-        ship.Sink = false;
+        ship.attackPower = 1;
+        ship.hitPoint = 2;
+        ship.positionX = 0;
+        ship.positionY = 0;
+        ship.sink = false;
         ships.put(ShipType.DESTROYER, ship);
 
         // 潜水艦を追加
         ship = new ShipParameter();
-        ship.AttackPower = 1;
-        ship.HitPoint = 1;
-        ship.PositionX = 0;
-        ship.PositionY = 0;
-        ship.Sink = false;
+        ship.attackPower = 1;
+        ship.hitPoint = 1;
+        ship.positionX = 0;
+        ship.positionY = 0;
+        ship.sink = false;
         ships.put(ShipType.SUBMARINE, ship);
     }
 
     public int GetPositionX(ShipType type) {
-        return ships.get(type).PositionX;
+        return ships.get(type).positionX;
     }
 
     public int GetPositionY(ShipType type) {
-        return ships.get(type).PositionY;
+        return ships.get(type).positionY;
     }
 
     private class ShipParameter {
-        public int HitPoint; // 耐久力
-        public int PositionX; // 位置X
-        public int PositionY; // 位置Y
-        public int AttackPower; // 攻撃力
-        public boolean Sink; // 沈没フラグ
+        public int hitPoint; // 耐久力
+        public int positionX; // 位置X
+        public int positionY; // 位置Y
+        public int attackPower; // 攻撃力
+        public boolean sink; // 沈没フラグ
     }
 
     /**
@@ -64,8 +64,8 @@ public class BattleshipClass {
      * @param shipType
      */
     public void SetPosition(int pointX, int pointY, ShipType shipType) {
-        ships.get(shipType).PositionX = pointX;
-        ships.get(shipType).PositionY = pointY;
+        ships.get(shipType).positionX = pointX;
+        ships.get(shipType).positionY = pointY;
     }
 
     /**
@@ -76,7 +76,7 @@ public class BattleshipClass {
      * @param shipType
      */
     public AttackResult AttackEnemy(int pointX, int pointY, ShipType shipType) {
-        int pwr = ships.get(shipType).AttackPower;
+        int pwr = ships.get(shipType).attackPower;
 
         // TODO 通信先に投げ、その結果を返す
         // AttackResult result = this.AttackRolls(pointX, pointY, pwr);
@@ -93,8 +93,8 @@ public class BattleshipClass {
      * @param shipType
      */
     public void Movement(int pointX, int pointY, ShipType shipType) {
-        ships.get(shipType).PositionX = pointX;
-        ships.get(shipType).PositionY = pointY;
+        ships.get(shipType).positionX = pointX;
+        ships.get(shipType).positionY = pointY;
 
         // TODO 通信先に投げる
         String sendMsg = pointX + "," + pointY;
@@ -112,13 +112,13 @@ public class BattleshipClass {
         AttackResult ret = AttackResult.FAIL;
 
         for (ShipType type : ships.keySet()) {
-            int x = ships.get(type).PositionX;
-            int y = ships.get(type).PositionY;
+            int x = ships.get(type).positionX;
+            int y = ships.get(type).positionY;
 
-            if ((x == pointX && y == pointY) && !ships.get(type).Sink) {
+            if ((x == pointX && y == pointY) && !ships.get(type).sink) {
                 // X軸、Y軸ともにどんぴしゃの場合
                 // HPを減らす
-                ships.get(type).HitPoint -= attackPower;
+                ships.get(type).hitPoint -= attackPower;
 
                 // TODO ListViewにログを表示
                 // 「命中！」など？
@@ -129,7 +129,7 @@ public class BattleshipClass {
                     // 沈没した場合
                     // TODO 通信先に「【種類】を撃沈！」を表示
                     // TODO 自分のログに「【種類】が沈没！」を表示
-                    ships.get(type).Sink = true;
+                    ships.get(type).sink = true;
                 }
             } else if ((x + 1 == pointX && y + 1 == pointY) || (x + 1 == pointX && y - 1 == pointY)
                     || (x - 1 == pointX && y + 1 == pointY) || (x - 1 == pointX && y - 1 == pointY)) {
@@ -153,7 +153,7 @@ public class BattleshipClass {
      * @return
      */
     private boolean IsSink(ShipType type) {
-        int hitPoint = ships.get(type).HitPoint;
+        int hitPoint = ships.get(type).hitPoint;
         return hitPoint == 0 ? true : false;
     }
 }
