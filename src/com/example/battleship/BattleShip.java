@@ -12,9 +12,11 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.battleship.code.AttackResult;
@@ -40,7 +42,6 @@ public class BattleShip extends CommActivity implements Common {
         connectionSetting();
 
         _btnIDs = new ArrayList<ArrayList<Integer>>();
-        _logAdapter = new ArrayAdapter<String>(this, LISTVIEWID);
 
         // マス作成
         this.SetButtons(WIDTH, HEIGHT);
@@ -93,19 +94,20 @@ public class BattleShip extends CommActivity implements Common {
      * @param x
      */
     private void SetListView(int x) {
+        _logAdapter = new ArrayAdapter<String>(this, R.layout.log_row);
         TableLayout layout = (TableLayout) findViewById(R.id.TableLayout1);
-        TableRow row = new TableRow(this);
 
         LayoutParams param = new LayoutParams();
         param.span = x;
+        param.width = LayoutParams.MATCH_PARENT;
+        param.height = LayoutParams.MATCH_PARENT;
 
         // ListView作成
         ListView list = new ListView(this);
         list.setId(LISTVIEWID);
         list.setAdapter(_logAdapter);
 
-        row.addView(list, param);
-        layout.addView(row);
+        layout.addView(list, param);
     }
 
     /**
@@ -230,8 +232,8 @@ public class BattleShip extends CommActivity implements Common {
      */
     private void AddLogMessage(String logText){
         // TODO ログを表示する
-//        _logAdapter.add(logText);
-//        _logAdapter.notifyDataSetChanged();
+        _logAdapter.add(logText);
+        _logAdapter.notifyDataSetChanged();
     }
 
     /**
