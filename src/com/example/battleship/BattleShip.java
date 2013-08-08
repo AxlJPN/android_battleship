@@ -27,7 +27,7 @@ public class BattleShip extends CommActivity implements Common {
     private int _selectedIndex;
     private Button _selectedButton;
     private ArrayList<ArrayList<Integer>> _btnIDs;
-    private int _selectButtonId;
+    protected int _selectButtonId;
     private Drawable _draw;
     public static ArrayAdapter<String> _logAdapter;
 
@@ -196,7 +196,7 @@ public class BattleShip extends CommActivity implements Common {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     _selectButtonId = v.getId();
-                    ArrayList<Button> buttons = GetAttackableButton(v.getId());
+                    ArrayList<Button> buttons = GetAttackableButton(_selectButtonId);
                     int color = Color.RED;
                     int cnt = 0;
 
@@ -324,7 +324,7 @@ public class BattleShip extends CommActivity implements Common {
 
                 // 選択されたテキストを選択したマスに設定
                 ((Button) findViewById(v.getId())).setText(btnText);
-                
+
                 String logText = LogMsg.MakeMoveLogText(_battleShip.GetPositionX(type),
                         _battleShip.GetPositionY(type), pointX, pointY, type);
                 LogMsg.AddLogMessage(logText);
@@ -376,103 +376,104 @@ public class BattleShip extends CommActivity implements Common {
             }
         }
 
-        /**
-         * 攻撃できるボタンのリストを取得する
-         *
-         * @param id
-         * @return
-         */
-        private ArrayList<Button> GetAttackableButton(int id) {
-            int rowNumber = id / WIDTH;
-            ArrayList<Button> buttonIDs = new ArrayList<Button>();
+        private DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
 
-            if ((id % WIDTH) == 0) {
-                // 左にボタンはない
-                if (rowNumber == 0) {
-                    // 上にボタンはない
-                    // 最上段左端
-                    buttonIDs.add((Button) findViewById(id + 1));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id + WIDTH + 1));
-                } else if (rowNumber == (HEIGHT - 1)) {
-                    // 下にボタンはない
-                    // 最下段左端
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + 1));
-                } else {
-                    // 左端
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + 1));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id + WIDTH + 1));
-                }
-            } else if ((id % WIDTH) == (WIDTH - 1)) {
-                // 右にボタンはない
-                if (rowNumber == 0) {
-                    // 上にボタンはない
-                    // 最上段右端
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                } else if (rowNumber == (HEIGHT - 1)) {
-                    // 下にボタンはない
-                    // 最下段右端
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id - 1));
-                } else {
-                    // 右端
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                }
-            } else {
-                // 左右にボタンがある
-                if (rowNumber == 0) {
-                    // 上にボタンはない
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + 1));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
-                } else if (rowNumber == (HEIGHT - 1)) {
-                    // 下にボタンはない
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + 1));
-                } else {
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
-                    buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + 1));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
-                    buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
-                }
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String selectText = _adapter.getItem(which).getShipName();
+                ClearButtonText(selectText);
+
+                _selectedIndex = which;
+                _selectedButton.setText(selectText);
+                _alertDialog.dismiss();
             }
+        };
 
-            return buttonIDs;
-        }
 
     }
+    /**
+     * 攻撃できるボタンのリストを取得する
+     *
+     * @param id
+     * @return
+     */
+    protected ArrayList<Button> GetAttackableButton(int id) {
+        int rowNumber = id / WIDTH;
+        ArrayList<Button> buttonIDs = new ArrayList<Button>();
 
-    private DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
-
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            String selectText = _adapter.getItem(which).getShipName();
-            ClearButtonText(selectText);
-
-            _selectedIndex = which;
-            _selectedButton.setText(selectText);
-            _alertDialog.dismiss();
+        if ((id % WIDTH) == 0) {
+            // 左にボタンはない
+            if (rowNumber == 0) {
+                // 上にボタンはない
+                // 最上段左端
+                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) findViewById(id + WIDTH + 1));
+            } else if (rowNumber == (HEIGHT - 1)) {
+                // 下にボタンはない
+                // 最下段左端
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + 1));
+            } else {
+                // 左端
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) findViewById(id + WIDTH + 1));
+            }
+        } else if ((id % WIDTH) == (WIDTH - 1)) {
+            // 右にボタンはない
+            if (rowNumber == 0) {
+                // 上にボタンはない
+                // 最上段右端
+                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+            } else if (rowNumber == (HEIGHT - 1)) {
+                // 下にボタンはない
+                // 最下段右端
+                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id - 1));
+            } else {
+                // 右端
+                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+            }
+        } else {
+            // 左右にボタンがある
+            if (rowNumber == 0) {
+                // 上にボタンはない
+                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
+            } else if (rowNumber == (HEIGHT - 1)) {
+                // 下にボタンはない
+                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) findViewById(id + 1));
+            } else {
+                buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
+                buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                buttonIDs.add((Button) findViewById(id - 1));
+                buttonIDs.add((Button) findViewById(id + 1));
+                buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
+                buttonIDs.add((Button) findViewById(id + WIDTH));
+                buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
+            }
         }
-    };
+
+        return buttonIDs;
+    }
+
 }
