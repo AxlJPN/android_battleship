@@ -338,27 +338,23 @@ public class BattleShip extends CommActivity {
 
                 Button btn = (Button) findViewById(_selectButtonId);
 
-                // 移動する船の種類を取得
                 String btnText = btn.getText().toString();
-                if (btnText.equals("B")) {
-                    type = ShipType.BATTLESHIP;
-                    ClearButtonText("B");
-                    ((Button) findViewById(v.getId())).setText("B");
-                } else if (btnText.equals("D")) {
-                    type = ShipType.DESTROYER;
-                    ClearButtonText("D");
-                    ((Button) findViewById(v.getId())).setText("D");
-                } else if (btnText.equals("S")) {
-                    type = ShipType.SUBMARINE;
-                    ClearButtonText("S");
-                    ((Button) findViewById(v.getId())).setText("S");
-                }
+
+                // 移動する船の種類を取得
+                type = getShipType(type, btnText);
+
+                // 選択されたテキストと同じ物を見つけてクリアする
+                ClearButtonText(btnText);
+
+                // 選択されたテキストを選択したマスに設定
+                ((Button) findViewById(v.getId())).setText(btnText);
 
                 String logText = LogMsg.MakeMoveLogText(_battleShip.GetPositionX(type),
                         _battleShip.GetPositionY(type), pointX, pointY, type);
                 LogMsg.AddLogMessage(logText);
                 // TODO 通信先にログを投げる
 
+                // 移動
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
@@ -368,6 +364,17 @@ public class BattleShip extends CommActivity {
                 mvSend.execute();
                 // doInBackgroundの終了
                 // mvSend.isCancelled();
+            }
+
+            private ShipType getShipType(ShipType type, String btnText) {
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("D")) {
+                    type = ShipType.DESTROYER;
+                } else if (btnText.equals("S")) {
+                    type = ShipType.SUBMARINE;
+                }
+                return type;
             }
         }
 
