@@ -293,7 +293,9 @@ public class BattleShip extends CommActivity {
                 }
             });
             builder.setPositiveButton("キャンセル", null);
-            builder.show();
+            AlertDialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
         }
 
         /**
