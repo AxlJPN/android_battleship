@@ -12,17 +12,15 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
-public class BattleShip extends CommActivity implements Common {
+public class BattleShip extends CommActivity {
 
     // 変数
     BattleshipClass _battleShip = null;
@@ -149,8 +147,33 @@ public class BattleShip extends CommActivity implements Common {
                 _alertDialog = createSelectShipDialog(BattleShip.this);
                 _alertDialog.show();
             } else {
+                // ゲーム開始
+                Toast.makeText(_context, "ゲームを開始します", Toast.LENGTH_SHORT).show();
+                Toast.makeText(_context, "あなたが" + _playerFirstTurn + "です", Toast.LENGTH_SHORT)
+                        .show();
+
                 for (int i = 0; i < WIDTH * HEIGHT; i++) {
                     ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                }
+
+                if (_playerFirstTurn.equals(FIRST_TURN)) {
+                    // 先行
+                    _playerFirstTurn = SECOND_TURN;
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        ((Button) findViewById(i)).setEnabled(true);
+                    }
+
+                } else {
+                    // 後攻
+                    _playerFirstTurn = FIRST_TURN;
+
+                    Toast.makeText(_context, "待機中", Toast.LENGTH_SHORT).show();
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        ((Button) findViewById(i)).setEnabled(false);
+                    }
+                    turnEndRecieve teRec = new turnEndRecieve(comm, _context);
+                    teRec.execute();
+                    teRec.isCancelled();
                 }
             }
         }
@@ -293,11 +316,10 @@ public class BattleShip extends CommActivity implements Common {
                 AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
+
                 String logText = LogMsg.MakeAttackLogText(pointX, pointY, type, result);
                 LogMsg.AddLogMessage(logText);
             }
-
         }
 
         /**
@@ -316,40 +338,44 @@ public class BattleShip extends CommActivity implements Common {
 
                 Button btn = (Button) findViewById(_selectButtonId);
 
-                // 移動する船の種類を取得
                 String btnText = btn.getText().toString();
-                if (btnText.equals("B")) {
-                    type = ShipType.BATTLESHIP;
-                    ClearButtonText("B");
-                    ((Button) findViewById(v.getId())).setText("B");
-                } else if (btnText.equals("D")) {
-                    type = ShipType.DESTROYER;
-                    ClearButtonText("D");
-                    ((Button) findViewById(v.getId())).setText("D");
-                } else if (btnText.equals("S")) {
-                    type = ShipType.SUBMARINE;
-                    ClearButtonText("S");
-                    ((Button) findViewById(v.getId())).setText("S");
-                }
-                
+
+                // 移動する船の種類を取得
+                type = getShipType(type, btnText);
+
+                // 選択されたテキストと同じ物を見つけてクリアする
+                ClearButtonText(btnText);
+
+                // 選択されたテキストを選択したマスに設定
+                ((Button) findViewById(v.getId())).setText(btnText);
+
                 String logText = LogMsg.MakeMoveLogText(_battleShip.GetPositionX(type),
                         _battleShip.GetPositionY(type), pointX, pointY, type);
                 LogMsg.AddLogMessage(logText);
                 // TODO 通信先にログを投げる
 
+                // 移動
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
 
-                // 自分の番が終了する
-                Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
                 // 終了したことを相手側に送信する
                 moveSend mvSend = new moveSend(comm, BattleShip.this);
                 mvSend.execute();
                 // doInBackgroundの終了
-                mvSend.isCancelled();
+                // mvSend.isCancelled();
             }
 
+            private ShipType getShipType(ShipType type, String btnText) {
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("D")) {
+                    type = ShipType.DESTROYER;
+                } else if (btnText.equals("S")) {
+                    type = ShipType.SUBMARINE;
+                }
+                return type;
+            }
         }
 
         /**
