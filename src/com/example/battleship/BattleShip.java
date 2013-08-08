@@ -143,8 +143,17 @@ public class BattleShip extends CommActivity implements Common {
                 _alertDialog = createSelectShipDialog(BattleShip.this);
                 _alertDialog.show();
             } else {
-                for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                    ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                // ゲーム開始
+                Toast.makeText(_context, "ゲームを開始します", Toast.LENGTH_SHORT).show();
+                Toast.makeText(_context, "あなたが"+ _playerFirstTurn +"です", Toast.LENGTH_SHORT).show();
+                if(_playerFirstTurn.equals(FIRST_TURN)){
+                    // 先行
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                    }
+                }else{
+                    // 後攻
+                    Toast.makeText(_context, "待機中", Toast.LENGTH_SHORT).show();
                 }
             }
         }

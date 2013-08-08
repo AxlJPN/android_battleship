@@ -33,12 +33,17 @@ public class CommActivity extends Activity {
     /**
      * デバッグフラグ
      */
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     Context _context = null;
     int port = 8080;
+    
     String serverIpAddress = null;
     String clientIpAddress = null;
+    
+    static final String FIRST_TURN = "先行";
+    static final String SECOND_TURN = "後攻";
+    String _playerFirstTurn = FIRST_TURN;
 
     CommModule comm = null;
 
@@ -140,6 +145,7 @@ public class CommActivity extends Activity {
                 }else{
                     Toast.makeText(_context, "送信できませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
+                    showSendDialog();
                 }
             }
         }
@@ -218,7 +224,7 @@ public class CommActivity extends Activity {
                 }else{
                     Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
-                    createTurnEndRecieveRetryDialog(_context);
+                    createTurnEndSendRetryDialog(_context);
                 }
             }
         }
@@ -294,6 +300,8 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー側接続画面表示
                 showRecieveDialog();
+                // サーバー側は先行
+                _playerFirstTurn = FIRST_TURN;
             }
         });
 
@@ -302,6 +310,8 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // クライアント側接続画面表示
                 showSendDialog();
+                // クライアント側は後攻
+                _playerFirstTurn = SECOND_TURN;
             }
         });
 
@@ -381,9 +391,6 @@ public class CommActivity extends Activity {
                 // doInBackgroundを終了させる
                 conSend.isCancelled();
 
-                // 船を配置するダイアログを表示
-                _alertDialog = createSelectShipDialog(CommActivity.this);
-                _alertDialog.show();
             }
         });
 
@@ -463,6 +470,40 @@ public class CommActivity extends Activity {
         builder.setTitle("Connection destination");
 
         builder.setMessage("受信に失敗しました．\n リトライしますか？");
+
+        builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // リトライ
+                turnEndRecieve teRec = new turnEndRecieve(comm, CommActivity.this);
+                teRec.execute();
+                // doInBackgroundの終了
+                teRec.isCancelled();
+            }
+        });
+
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 終了
+            }
+        });
+
+        _recieveRetryDialog = builder.create();
+        _recieveRetryDialog.show();
+    }
+    
+    /**
+     * 送信リトライダイアログの表示
+     * @param context
+     */
+    protected void createTurnEndSendRetryDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle("Connection destination");
+
+        builder.setMessage("送信に失敗しました．\n リトライしますか？");
 
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
