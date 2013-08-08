@@ -31,7 +31,8 @@ public class CommActivity extends Activity {
 
     CommModule comm = null;
 
-    protected String shortName = null;
+    protected String _shortName = null;
+    protected ShipType _shipType;
     protected ArrayAdapter<Ship> _adapter;
     protected AlertDialog _alertDialog;
     private AlertDialog _recieveDialog;
@@ -303,7 +304,8 @@ public class CommActivity extends Activity {
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
-            shortName = _adapter.getItem(which).getShortShipName();
+            _shortName = _adapter.getItem(which).getShortShipName();
+            _shipType = _adapter.getItem(which).getShipType();
             dialog.dismiss();
         }
     }
@@ -472,5 +474,13 @@ public class CommActivity extends Activity {
 
         _recieveRetryDialog = builder.create();
         _recieveRetryDialog.show();
+    }
+    
+    protected int getPointX(int id) {
+        return id % Common.WIDTH;
+    }
+    
+    protected int getPointY(int id) {
+        return id / Common.WIDTH;
     }
 }
