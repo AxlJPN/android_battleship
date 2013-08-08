@@ -48,6 +48,10 @@ public class BattleshipClass {
         return ships.get(type).positionY;
     }
 
+    public int GetPower(ShipType type) {
+        return ships.get(type).attackPower;
+    }
+
     private class ShipParameter {
         public int hitPoint; // 耐久力
         public int positionX; // 位置X

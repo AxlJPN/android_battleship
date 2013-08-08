@@ -322,6 +322,13 @@ public class BattleShip extends CommActivity {
 
                 String logText = LogMsg.MakeAttackLogText(pointX, pointY, type, result);
                 LogMsg.AddLogMessage(logText);
+
+                // 終了したことを相手側に送信する
+                attackSend atSend = new attackSend(comm, _context, pointX, pointY,
+                        _battleShip.GetPower(type));
+                atSend.execute();
+                // doInBackgroundの終了
+                atSend.isCancelled();
             }
         }
 

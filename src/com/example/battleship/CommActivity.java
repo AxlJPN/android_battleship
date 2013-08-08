@@ -185,18 +185,22 @@ public class CommActivity extends Activity implements Common {
             } else {
                 // 分割
                 String[] params = result.split(",");
+                String turnType = params[0];
 
                 LogMsg.AddLogMessage("自分の番です");
                 for (int i = 0; i < WIDTH * HEIGHT; i++) {
                     ((Button) findViewById(i)).setEnabled(true);
                 }
 
-                if (params[0].equals(ATTACK_TURN)) {
+                if (turnType.equals(ATTACK_TURN)) {
+                    int pointX = Integer.parseInt(params[1]);
+                    int pointY = Integer.parseInt(params[2]);
+                    int attackPower = Integer.parseInt(params[3]);
                     // 相手側が攻撃を行ったとき
                     LogMsg.AddLogMessage("相手が攻撃をしました");
                     // 攻撃判定
 
-                } else if (params[0].equals(MOVE_TURN)) {
+                } else if (turnType.equals(MOVE_TURN)) {
                     // 相手側が移動を行ったとき
                     LogMsg.AddLogMessage(params[1]);
                 }
@@ -262,17 +266,24 @@ public class CommActivity extends Activity implements Common {
      * 
      */
     public class attackSend extends CommModule.Send {
-        public attackSend(CommModule commModule, Context con) {
+        int pointX = 0;
+        int pointY = 0;
+        int power = 0;
+
+        public attackSend(CommModule commModule, Context con, int pX, int pY, int p) {
             commModule.super(con, _otherIpAddress);
+            pointX = pX;
+            pointY = pY;
+            power = p;
         }
 
         @Override
         /**
-         * @args0 [0]:座標，ダメージ (例) {1,5}1
+         * @args0 [0]:座標，ダメージ (例) 1,5,1
          */
         protected Boolean doInBackground(String... args0) {
             // 攻撃したので座標，ダメージを送信する
-            return super.doInBackground(args0);
+            return super.doInBackground("2," + pointX + "," + pointY + "," + power);
         }
 
         @Override
@@ -288,6 +299,7 @@ public class CommActivity extends Activity implements Common {
                     turnEndRecieve rec = new turnEndRecieve(comm, _context);
                     rec.execute();
                     rec.isCancelled();
+
                 } else {
                     LogMsg.AddLogMessage("通信出来ませんでした");
                     // リトライ
