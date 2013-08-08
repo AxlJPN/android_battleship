@@ -28,7 +28,7 @@ public class LogMsg {
             break;
 
         case NEAR:
-            attackMsg = new LogMsg().GetShipName(type) + "、水しぶき";
+            attackMsg = GetShipName(type) + "、水しぶき";
             break;
 
         case FAIL:
@@ -54,7 +54,8 @@ public class LogMsg {
      * @return
      */
     public static String MakeMoveLogText(int fromX, int fromY, int toX, int toY, ShipType type) {
-        String shipName = new LogMsg().GetShipName(type);
+
+        String shipName = GetShipName(type);
 
         int moveX = fromX - toX;
         int moveY = fromY - toY;
@@ -82,7 +83,7 @@ public class LogMsg {
      * @param type
      * @return
      */
-    private String GetShipName(ShipType type) {
+    public static String GetShipName(ShipType type) {
         switch (type) {
         case BATTLESHIP:
             return "戦艦";
@@ -95,6 +96,25 @@ public class LogMsg {
         }
 
         return null;
+    }
+
+    /**
+     * ShortNameを元に船の名前を取得する
+     * 
+     * @param shortName
+     * @return
+     */
+    public static String GetShipNameByShorName(String shortName) {
+        String ret = "";
+        if (shortName.equals("B")) {
+            ret = "戦艦";
+        } else if (shortName.equals("D")) {
+            ret = "駆逐艦";
+        } else if (shortName.equals("S")) {
+            ret = "潜水艦";
+        }
+
+        return ret;
     }
 
     /**

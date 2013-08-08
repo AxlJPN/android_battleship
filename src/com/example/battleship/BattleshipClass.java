@@ -1,12 +1,15 @@
 package com.example.battleship;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import android.widget.Button;
 
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
-public class BattleshipClass {
+public class BattleshipClass extends BattleShip {
 
     private Map<ShipType, ShipParameter> ships = new HashMap<ShipType, BattleshipClass.ShipParameter>();
 
@@ -99,9 +102,6 @@ public class BattleshipClass {
     public void Movement(int pointX, int pointY, ShipType shipType) {
         ships.get(shipType).positionX = pointX;
         ships.get(shipType).positionY = pointY;
-
-        // TODO 通信先に投げる
-        String sendMsg = pointX + "," + pointY;
     }
 
     /**
@@ -114,6 +114,7 @@ public class BattleshipClass {
      */
     public AttackResult AttackRolls(int pointX, int pointY, int attackPower) {
         AttackResult ret = AttackResult.FAIL;
+        String logText;
 
         for (ShipType type : ships.keySet()) {
             int x = ships.get(type).positionX;
@@ -131,19 +132,33 @@ public class BattleshipClass {
                     ret = AttackResult.HIT;
                 if (IsSink(type)) {
                     // 沈没した場合
-                    // TODO 通信先に「【種類】を撃沈！」を表示
-                    // TODO 自分のログに「【種類】が沈没！」を表示
                     ships.get(type).sink = true;
-                }
-            } else if ((x + 1 == pointX && y + 1 == pointY) || (x + 1 == pointX && y - 1 == pointY)
-                    || (x - 1 == pointX && y + 1 == pointY) || (x - 1 == pointX && y - 1 == pointY)) {
-                // X軸±1、Y軸±1の場合
-                // TODO ListViewにログを表示
-                // 「【種類】、波高し」、「【種類】、水しぶき」など
 
-                if (ret == AttackResult.FAIL)
-                    ret = AttackResult.NEAR;
+                    // 自分のログ
+                    logText = LogMsg.GetShipName(type) + "が沈没！";
+                    LogMsg.AddLogMessage(logText);
+
+                    // 通信先のログ
+                    logText = LogMsg.GetShipName(type) + "を撃沈！";
+                    // TODO 通信先に「【種類】を撃沈！」を表示
+                }
             }
+        }
+
+        ArrayList<Button> buttons = GetAttackableButton(_selectButtonId);
+        for (Button btn : buttons) {
+            String btnText = btn.getText().toString();
+
+            // ボタンに文字列が設定されていない場合、何もしない
+            if (btnText.isEmpty())
+                continue;
+
+            if (ret == AttackResult.FAIL)
+                ret = AttackResult.NEAR;
+
+            // 「【種類】、波高し」、「【種類】、水しぶき」など
+            logText = LogMsg.GetShipNameByShorName(btnText) + "、波高し";
+            LogMsg.AddLogMessage(logText);
         }
 
         // TODO 通信先に投げる

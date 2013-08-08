@@ -92,11 +92,11 @@ public class CommActivity extends Activity implements Common {
                 _alertDialog.show();
             } else {
                 if (result == null) {
-                    Toast.makeText(_context, "接続できませんでした", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, MSG_CONNECT_FAIL, Toast.LENGTH_SHORT).show();
                     // 受信リトライ
                     createRecieveRetryDialog(CommActivity.this);
                 } else if (result.equals("1")) {
-                    Toast.makeText(_context, "接続しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, MSG_CONNECT_SUCCESS, Toast.LENGTH_SHORT).show();
                     _recieveDialog.dismiss();
 
                     // 船を配置するダイアログを表示
@@ -138,17 +138,19 @@ public class CommActivity extends Activity implements Common {
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
+                _alertDialog.setCanceledOnTouchOutside(false);
                 _alertDialog.show();
             } else {
                 if (bol) {
-                    Toast.makeText(_context, "接続しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, MSG_CONNECT_SUCCESS, Toast.LENGTH_SHORT).show();
                     _sendDialog.dismiss();
 
                     // 船を配置するダイアログを表示
                     _alertDialog = createSelectShipDialog(CommActivity.this);
+                    _alertDialog.setCanceledOnTouchOutside(false);
                     _alertDialog.show();
                 } else {
-                    Toast.makeText(_context, "接続できませんでした", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, MSG_CONNECT_FAIL, Toast.LENGTH_SHORT).show();
                     // リトライ
                     showSendDialog();
                 }
@@ -353,6 +355,7 @@ public class CommActivity extends Activity implements Common {
         });
 
         _selectServerCliendDialog = builder.create();
+        _selectServerCliendDialog.setCanceledOnTouchOutside(false);
         _selectServerCliendDialog.show();
     }
 
@@ -388,6 +391,7 @@ public class CommActivity extends Activity implements Common {
         });
 
         _recieveDialog = builder.create();
+        _recieveDialog.setCanceledOnTouchOutside(false);
         _recieveDialog.show();
 
         // 待機＋ゲームスタート
@@ -410,6 +414,7 @@ public class CommActivity extends Activity implements Common {
         builder.setMessage("Please specify the connection destination.\nYour IP is: "
                 + comm.getWifiInfo());
         final EditText editView = new EditText(this);
+        editView.setText("192.168.");
         builder.setView(editView);
 
         builder.setPositiveButton("connect", new DialogInterface.OnClickListener() {
@@ -437,6 +442,7 @@ public class CommActivity extends Activity implements Common {
         });
 
         _sendDialog = builder.create();
+        _sendDialog.setCanceledOnTouchOutside(false);
         _sendDialog.show();
     }
 
@@ -453,6 +459,7 @@ public class CommActivity extends Activity implements Common {
 
         builder.setSingleChoiceItems(_adapter, 0, new onSelectShipDialogClickListener());
         dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -488,6 +495,7 @@ public class CommActivity extends Activity implements Common {
         _recieveDialog.dismiss();
 
         _recieveRetryDialog = builder.create();
+        _recieveRetryDialog.setCanceledOnTouchOutside(false);
         _recieveRetryDialog.show();
     }
 
@@ -521,6 +529,7 @@ public class CommActivity extends Activity implements Common {
         });
 
         _recieveRetryDialog = builder.create();
+        _recieveRetryDialog.setCanceledOnTouchOutside(false);
         _recieveRetryDialog.show();
     }
 
@@ -558,6 +567,7 @@ public class CommActivity extends Activity implements Common {
         });
 
         _recieveRetryDialog = builder.create();
+        _recieveRetryDialog.setCanceledOnTouchOutside(false);
         _recieveRetryDialog.show();
     }
 
