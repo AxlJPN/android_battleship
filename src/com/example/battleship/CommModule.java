@@ -20,13 +20,14 @@ public class CommModule {
     /**
      * ポートの指定
      */
-    int port = 8080;
-    Context context = null;
+    int _port = 8080;
+    Context _context = null;
+    int _timeOut = 0;
     String serverIpAddress = null;
     String clientIpAddress = null;
 
     public CommModule(Context con){
-        context = con;
+        _context = con;
     }
 
     /**
@@ -39,12 +40,12 @@ public class CommModule {
         private Socket mSocket;
 
         public Recieve(Context con){
-            context = con;
+            _context = con;
         }
 
-        public Recieve(Context con, int p){
-            context = con;
-            port = p;
+        public Recieve(Context con, int p, int timeout){
+            _context = con;
+            _timeOut = timeout;
         }
 
         @Override
@@ -58,9 +59,9 @@ public class CommModule {
             String ret = null;
             try {
                 // connect
-                mServer = new ServerSocket(port);
+                mServer = new ServerSocket(_port);
                 // タイムアウト時間を設定
-                mServer.setSoTimeout(20000);
+                mServer.setSoTimeout(_timeOut);
                 mSocket = mServer.accept();
 
                 clientIpAddress = mSocket.getInetAddress().toString();
@@ -96,7 +97,7 @@ public class CommModule {
                     e.printStackTrace();
                 }
             }
-            
+
             return ret;
         }
 
@@ -117,7 +118,7 @@ public class CommModule {
          * @param serverIp 接続する先のIPアドレス
          */
         public Send(Context con, String serverIp){
-            context = con;
+            _context = con;
             serverIpAddress = serverIp;
         }
 
@@ -130,13 +131,13 @@ public class CommModule {
             boolean ret = false;
 
             try {
-                socket = new Socket(serverIpAddress, port);
+                socket = new Socket(serverIpAddress, _port);
                 clientIpAddress = getWifiInfo();
 
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.write(args0[0]);
                 pw.flush();
-                
+
                 ret = true;
 
             } catch (UnknownHostException e) {
@@ -173,7 +174,7 @@ public class CommModule {
      * @return IPアドレス
      */
     public String getWifiInfo() {
-        WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) this._context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifIinfo = wifiManager.getConnectionInfo();
         int address = wifIinfo.getIpAddress();
         String ipAddressStr = ((address >> 0) & 0xFF) + "." + ((address >> 8) & 0xFF) + "."

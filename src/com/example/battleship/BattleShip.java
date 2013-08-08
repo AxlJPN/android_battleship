@@ -5,14 +5,20 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+import android.widget.Toast;
+
+import com.example.battleship.code.AttackResult;
+import com.example.battleship.code.ShipType;
 
 public class BattleShip extends CommActivity implements Common {
 
@@ -21,6 +27,9 @@ public class BattleShip extends CommActivity implements Common {
     private int _selectedIndex;
     private Button _selectedButton;
     private ArrayList<ArrayList<Integer>> _btnIDs;
+    private int _selectButtonId;
+    private Drawable _draw;
+    private ArrayAdapter<String> _logAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,7 @@ public class BattleShip extends CommActivity implements Common {
         connectionSetting();
 
         _btnIDs = new ArrayList<ArrayList<Integer>>();
+        _logAdapter = new ArrayAdapter<String>(this, LISTVIEWID);
 
         // マス作成
         this.SetButtons(WIDTH, HEIGHT);
@@ -61,6 +71,8 @@ public class BattleShip extends CommActivity implements Common {
 
                 row.addView(button);
 
+                _draw = button.getBackground();
+
                 // ボタンイベントを追加
                 button.setOnClickListener(new OnClickButtonWhenFirst());
 
@@ -90,6 +102,7 @@ public class BattleShip extends CommActivity implements Common {
         // ListView作成
         ListView list = new ListView(this);
         list.setId(LISTVIEWID);
+        list.setAdapter(_logAdapter);
 
         row.addView(list, param);
         layout.addView(row);
@@ -153,6 +166,73 @@ public class BattleShip extends CommActivity implements Common {
         }
         return shipCount;
     }
+    
+    /**
+     * 攻撃時のログメッセージを生成する
+     * @param pointX
+     * @param pointY
+     * @param result
+     * @return
+     */
+    private String MakeAttackLogText(int pointX, int pointY, ShipType type, AttackResult result){
+        String attackMsg = "";
+        switch (result) {
+        case HIT:
+            attackMsg = "命中！";
+            break;
+            
+        case NEAR:
+            attackMsg = GetShipName(type) + "、水しぶき";
+            break;
+            
+        case FAIL:
+            attackMsg = "攻撃命中せず";
+            break;
+        }
+        return "【" + pointX + "," + pointY + "への攻撃】 " + attackMsg;
+    }
+    
+    /**
+     * 移動時のログメッセージを生成する
+     * @param pointX
+     * @param pointY
+     * @param type
+     * @return
+     */
+    private String MakeMoveLogText(int pointX, int pointY, ShipType type){
+        String shipName = GetShipName(type);
+        return shipName + "が(" + pointX + "," + pointY + ")へ移動";
+    }
+    
+    /**
+     * 船の名前を返す
+     * @param type
+     * @return
+     */
+    private String GetShipName(ShipType type){
+        switch (type) {
+        case BATTLESHIP:
+            return "戦艦";
+            
+        case DESTROYER:
+            return "駆逐艦";
+            
+        case SUBMARINE:
+            return "潜水艦";
+        }
+        
+        return null;
+    }
+    
+    /**
+     * ログを表示する
+     * @param logText
+     */
+    private void AddLogMessage(String logText){
+        // TODO ログを表示する
+//        _logAdapter.add(logText);
+//        _logAdapter.notifyDataSetChanged();
+    }
 
     /**
      * ゲーム開始後のボタンクリックイベント
@@ -178,11 +258,25 @@ public class BattleShip extends CommActivity implements Common {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ArrayList<Button> buttonIDs = GetAttackableButton(v.getId());
+                    _selectButtonId = v.getId();
+                    ArrayList<Button> buttons = GetAttackableButton(v.getId());
                     int color = Color.RED;
+                    int cnt = 0;
 
-                    for (Button btn : buttonIDs) {
-                        btn.setBackgroundColor(color);
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        Button btn = (Button) findViewById(i);
+
+                        if (i == buttons.get(cnt).getId()) {
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickAttackButton());
+                            cnt++;
+                        } else {
+                            btn.setOnClickListener(null);
+                        }
+
+                        // 対象のボタン数以上カウントがされたら処理を終了する
+                        if (cnt >= buttons.size())
+                            break;
                     }
                 }
             });
@@ -191,31 +285,149 @@ public class BattleShip extends CommActivity implements Common {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // 移動ができるマスを青くする
-                    int id = v.getId();
-                    int colNum = id % WIDTH;
-                    int rowNum = id / WIDTH;
+                    _selectButtonId = v.getId();
+                    int colNum = _selectButtonId % WIDTH;
+                    int rowNum = _selectButtonId / WIDTH;
                     int color = Color.BLUE;
 
                     for (int btnId : _btnIDs.get(rowNum)) {
-                        if (btnId == id) {
+                        if (btnId == _selectButtonId) {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        btn.setBackgroundColor(color);
+                        if (btn.getText().toString().isEmpty()) {
+                            // 移動できるのは他の船がいない箇所
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickMoveButton());
+                        } else {
+                            // 他の船がいる場合、onClickListenerをクリアする
+                            btn.setOnClickListener(null);
+                        }
                     }
 
                     for (ArrayList<Integer> list : _btnIDs) {
                         int btnId = list.get(colNum);
-                        if (btnId == id) {
+                        if (btnId == _selectButtonId) {
                             continue;
                         }
                         Button btn = (Button) findViewById(btnId);
-                        btn.setBackgroundColor(color);
+                        if (btn.getText().toString().isEmpty()) {
+                            // 移動できるのは他の船がいない箇所
+                            btn.setBackgroundColor(color);
+                            btn.setOnClickListener(new OnClickMoveButton());
+                        } else {
+                            // 他の船がいる場合、onClickListenerをクリアする
+                            btn.setOnClickListener(null);
+                        }
                     }
                 }
             });
             builder.setPositiveButton("キャンセル", null);
             builder.show();
+        }
+
+        /**
+         * 攻撃先が選択された際のイベント
+         * 
+         * @author N.Wada
+         * 
+         */
+        private class OnClickAttackButton implements OnClickListener {
+
+            @Override
+            public void onClick(View v) {
+                int pointX = v.getId() % WIDTH;
+                int pointY = v.getId() / WIDTH;
+                ShipType type = ShipType.BATTLESHIP;
+
+                Button btn = (Button) findViewById(_selectButtonId);
+
+                String btnText = btn.getText().toString();
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("D")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("S")) {
+                    type = ShipType.BATTLESHIP;
+                }
+
+                AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type);
+                ClearButtonColor();
+                SetGameStartEvent();
+                
+                String logText = MakeAttackLogText(pointX, pointY, type, result);
+                AddLogMessage(logText);
+            }
+
+        }
+
+        /**
+         * 移動先が選択された際のイベント
+         * 
+         * @author N.Wada
+         * 
+         */
+        private class OnClickMoveButton implements OnClickListener {
+
+            @Override
+            public void onClick(View v) {
+                int pointX = v.getId() % WIDTH;
+                int pointY = v.getId() / WIDTH;
+                ShipType type = ShipType.BATTLESHIP;
+
+                Button btn = (Button) findViewById(_selectButtonId);
+
+                // 移動する船の種類を取得
+                String btnText = btn.getText().toString();
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                    ClearButtonText("B");
+                    ((Button) findViewById(v.getId())).setText("B");
+                } else if (btnText.equals("D")) {
+                    type = ShipType.DESTROYER;
+                    ClearButtonText("D");
+                    ((Button) findViewById(v.getId())).setText("D");
+                } else if (btnText.equals("S")) {
+                    type = ShipType.SUBMARINE;
+                    ClearButtonText("S");
+                    ((Button) findViewById(v.getId())).setText("S");
+                }
+
+                _battleShip.Movement(pointX, pointY, type);
+                ClearButtonColor();
+                SetGameStartEvent();
+                
+                String logText = MakeMoveLogText(pointX, pointY, type);
+                AddLogMessage(logText);
+
+                // 自分の番が終了する
+                Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
+                // 終了したことを相手側に送信する
+                moveSend mvSend = new moveSend(comm, BattleShip.this);
+                mvSend.execute();
+                // doInBackgroundの終了
+                mvSend.isCancelled();
+            }
+
+        }
+
+        /**
+         * ボタンの色を解除する
+         */
+        private void ClearButtonColor() {
+            for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                // 色を戻す
+                ((Button) findViewById(i)).setBackgroundDrawable(_draw);
+            }
+        }
+
+        /**
+         * ボタンのイベントをOnClickButtonGameStartに変更する
+         */
+        private void SetGameStartEvent() {
+            for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+            }
         }
 
         /**
@@ -239,14 +451,14 @@ public class BattleShip extends CommActivity implements Common {
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
                     // 最下段左端
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + 1));
                 } else {
                     // 左端
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + WIDTH));
                     buttonIDs.add((Button) findViewById(id + WIDTH + 1));
                 }
@@ -261,16 +473,16 @@ public class BattleShip extends CommActivity implements Common {
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
                     // 最下段右端
+                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id - ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - WIDTH));
                 } else {
                     // 右端
+                    buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id - 1));
                     buttonIDs.add((Button) findViewById(id + (WIDTH - 1)));
                     buttonIDs.add((Button) findViewById(id + WIDTH));
-                    buttonIDs.add((Button) findViewById(id - ((WIDTH + 1) * -1)));
-                    buttonIDs.add((Button) findViewById(id - WIDTH));
                 }
             } else {
                 // 左右にボタンがある
@@ -283,11 +495,11 @@ public class BattleShip extends CommActivity implements Common {
                     buttonIDs.add((Button) findViewById(id + (WIDTH + 1)));
                 } else if (rowNumber == (HEIGHT - 1)) {
                     // 下にボタンはない
-                    buttonIDs.add((Button) findViewById(id - 1));
-                    buttonIDs.add((Button) findViewById(id + 1));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));
                     buttonIDs.add((Button) findViewById(id + ((WIDTH - 1) * -1)));
+                    buttonIDs.add((Button) findViewById(id - 1));
+                    buttonIDs.add((Button) findViewById(id + 1));
                 } else {
                     buttonIDs.add((Button) findViewById(id + ((WIDTH + 1) * -1)));
                     buttonIDs.add((Button) findViewById(id + (WIDTH * -1)));

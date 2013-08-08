@@ -1,10 +1,15 @@
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <TableLayout
     android:id="@+id/TableLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:context=".BattleShip"
     android:stretchColumns="0,1,2,3,4"
     >
+	</TableLayout>
 
-</TableLayout>
+</RelativeLayout>
