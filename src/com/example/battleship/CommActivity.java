@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,20 +16,26 @@ import com.example.battleship.code.ShipType;
 
 /**
  * 初期接続設定クラス
- *
+ * 
  * @author T.Sasaki
- *
+ * 
  */
-public class CommActivity extends Activity {
+public class CommActivity extends Activity implements Common {
+
     /**
      * デバッグフラグ
      */
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     Context _context = null;
     int port = 8080;
-    String serverIpAddress = null;
-    String clientIpAddress = null;
+
+    String _myIpAddress = null;
+    String _otherIpAddress = null;
+
+    static final String FIRST_TURN = "先攻";
+    static final String SECOND_TURN = "後攻";
+    String _playerFirstTurn = FIRST_TURN;
 
     CommModule comm = null;
 
@@ -48,9 +56,9 @@ public class CommActivity extends Activity {
 
     /**
      * 初期接続の受信
-     *
+     * 
      * @author T.Sasaki
-     *
+     * 
      */
     public class connectRecieve extends CommModule.Recieve {
         static final int timeout = DEBUG ? 1 : 20000;
@@ -67,20 +75,24 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(DEBUG){
+
+            // ターン終了時にアクセスするためにIPアドレスを取得する
+            _myIpAddress = comm.getServerIpAddress();
+            _otherIpAddress = comm.getClientIpAddress();
+
+            if (DEBUG) {
                 Toast.makeText(_context, "通信できないから船選んでー", Toast.LENGTH_SHORT).show();
                 _recieveDialog.dismiss();
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
-            }else{
-                if(result == null){
+            } else {
+                if (result == null) {
                     Toast.makeText(_context, "接続できませんでした", Toast.LENGTH_SHORT).show();
                     // 受信リトライ
                     createRecieveRetryDialog(CommActivity.this);
-                }
-                else if(result.equals("1")) {
+                } else if (result.equals("1")) {
                     Toast.makeText(_context, "接続しました", Toast.LENGTH_SHORT).show();
                     _recieveDialog.dismiss();
 
@@ -95,9 +107,9 @@ public class CommActivity extends Activity {
 
     /**
      * 初期接続の送信
-     *
+     * 
      * @author T.Sasaki
-     *
+     * 
      */
     public class connectSend extends CommModule.Send {
         public connectSend(CommModule commModule, Context con, String serverIp) {
@@ -112,24 +124,30 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if(DEBUG){
+
+            // ターン終了時にアクセスするためにIPアドレスを取得する
+            _myIpAddress = comm.getClientIpAddress();
+            _otherIpAddress = comm.getServerIpAddress();
+
+            if (DEBUG) {
                 Toast.makeText(_context, "通信してないけど船の配置しよう", Toast.LENGTH_SHORT).show();
                 _sendDialog.dismiss();
 
                 // 船を配置するダイアログを表示
                 _alertDialog = createSelectShipDialog(CommActivity.this);
                 _alertDialog.show();
-            }else{
-                if(bol){
+            } else {
+                if (bol) {
                     Toast.makeText(_context, "送信しました", Toast.LENGTH_SHORT).show();
                     _sendDialog.dismiss();
 
                     // 船を配置するダイアログを表示
                     _alertDialog = createSelectShipDialog(CommActivity.this);
                     _alertDialog.show();
-                }else{
+                } else {
                     Toast.makeText(_context, "送信できませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
+                    showSendDialog();
                 }
             }
         }
@@ -137,39 +155,41 @@ public class CommActivity extends Activity {
 
     /**
      * ターン終了時の受信
-     *
+     * 
      * @author T.Sasaki
-     *
+     * 
      */
     public class turnEndRecieve extends CommModule.Recieve {
+        static final int timeout = DEBUG ? 1 : 20000;
+        String[] param = { "1" };
+
         public turnEndRecieve(CommModule commModule, Context con) {
-            commModule.super(con);
+            commModule.super(con, 8080, timeout);
         }
 
         @Override
         protected String doInBackground(String... args0) {
-            return super.doInBackground(args0);
+            return super.doInBackground(param);
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(result == null)
+            if (result == null) {
                 Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
-            else if(result.equals("1")) {
+                createTurnEndRecieveRetryDialog(_context);
+            } else if (result.equals("1")) {
                 Toast.makeText(_context, "自分の番です", Toast.LENGTH_SHORT).show();
-
-                if(result.equals("攻撃")){
-                    // 相手側が攻撃を行ったとき
+                for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                    ((Button) findViewById(i)).setEnabled(true);
                 }
-                else if(result.equals("移動")){
+
+                if (result.equals("攻撃")) {
+                    // 相手側が攻撃を行ったとき
+                } else if (result.equals("移動")) {
                     // 相手側が移動を行ったとき
                 }
-
-                // 船を配置するダイアログを表示
-                _alertDialog = createSelectShipDialog(CommActivity.this);
-                _alertDialog.show();
 
             }
         }
@@ -177,13 +197,14 @@ public class CommActivity extends Activity {
 
     /**
      * 移動終了後の送信
-     *
+     * 
      * @author T.Sasaki
-     *
+     * 
      */
     public class moveSend extends CommModule.Send {
         public moveSend(CommModule commModule, Context con) {
-            commModule.super(con, serverIpAddress);
+            commModule.super(con, _otherIpAddress);
+            Log.v("send", "sendToIp:" + _otherIpAddress);
         }
 
         @Override
@@ -195,20 +216,27 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if(DEBUG){
+
+            // 自分の番が終了する
+            Toast.makeText(_context, "自分の番を終了します", Toast.LENGTH_SHORT).show();
+
+            if (DEBUG) {
                 // デバッグ時
                 Toast.makeText(_context, "[相手の移動が終わって自分の番]", Toast.LENGTH_SHORT).show();
-            }else{
-                if(bol){
+            } else {
+                if (bol) {
                     Toast.makeText(_context, "相手の番に変わります", Toast.LENGTH_SHORT).show();
                     // 相手の番が終わるまで待機
-                    turnEndRecieve rec = new turnEndRecieve(comm, _context);
-                    rec.execute();
-                    rec.isCancelled();
-                }else{
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        ((Button) findViewById(i)).setEnabled(false);
+                    }
+                    turnEndRecieve teRec = new turnEndRecieve(comm, _context);
+                    teRec.execute();
+                    teRec.isCancelled();
+                } else {
                     Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
-                    createTurnEndRecieveRetryDialog(_context);
+                    createTurnEndSendRetryDialog(_context);
                 }
             }
         }
@@ -216,13 +244,13 @@ public class CommActivity extends Activity {
 
     /**
      * 攻撃終了後の送信
-     *
+     * 
      * @author T.Sasaki
-     *
+     * 
      */
     public class attackSend extends CommModule.Send {
         public attackSend(CommModule commModule, Context con) {
-            commModule.super(con, serverIpAddress);
+            commModule.super(con, _otherIpAddress);
         }
 
         @Override
@@ -237,17 +265,17 @@ public class CommActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean bol) {
             super.onPostExecute(bol);
-            if(DEBUG){
+            if (DEBUG) {
                 // デバッグ時
                 Toast.makeText(_context, "[相手の攻撃が終わって自分の番]", Toast.LENGTH_SHORT).show();
-            }else{
-                if(bol){
+            } else {
+                if (bol) {
                     Toast.makeText(_context, "相手の番に変わります", Toast.LENGTH_SHORT).show();
                     // 相手の番が終わるまで待機
                     turnEndRecieve rec = new turnEndRecieve(comm, _context);
                     rec.execute();
                     rec.isCancelled();
-                }else{
+                } else {
                     Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
 
@@ -284,6 +312,8 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // サーバー側接続画面表示
                 showRecieveDialog();
+                // サーバー側は先行
+                _playerFirstTurn = FIRST_TURN;
             }
         });
 
@@ -292,6 +322,8 @@ public class CommActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 // クライアント側接続画面表示
                 showSendDialog();
+                // クライアント側は後攻
+                _playerFirstTurn = SECOND_TURN;
             }
         });
 
@@ -337,9 +369,6 @@ public class CommActivity extends Activity {
         connectRecieve conRec = new connectRecieve(comm, _context);
         conRec.execute();
 
-        this.clientIpAddress = comm.getClientIpAddress();
-        this.serverIpAddress = comm.getServerIpAddress();
-
         // doInBackgroundを終了させる
         conRec.isCancelled();
     }
@@ -366,15 +395,9 @@ public class CommActivity extends Activity {
                 connectSend conSend = new connectSend(comm, _context, editView.getText().toString());
                 conSend.execute();
 
-                clientIpAddress = comm.getClientIpAddress();
-                serverIpAddress = comm.getServerIpAddress();
-
                 // doInBackgroundを終了させる
                 conSend.isCancelled();
 
-                // // 船を配置するダイアログを表示
-                // _alertDialog = createSelectShipDialog(CommActivity.this);
-                // _alertDialog.show();
             }
         });
 
@@ -410,6 +433,7 @@ public class CommActivity extends Activity {
 
     /**
      * 初期受信リトライダイアログの表示
+     * 
      * @param context
      */
     protected void createRecieveRetryDialog(Context context) {
@@ -444,6 +468,7 @@ public class CommActivity extends Activity {
 
     /**
      * 受信リトライダイアログの表示
+     * 
      * @param context
      */
     protected void createTurnEndRecieveRetryDialog(Context context) {
@@ -453,6 +478,39 @@ public class CommActivity extends Activity {
         builder.setTitle("Connection destination");
 
         builder.setMessage("受信に失敗しました．\n リトライしますか？");
+
+        builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // リトライ
+                turnEndRecieve teRec = new turnEndRecieve(comm, CommActivity.this);
+                teRec.execute();
+            }
+        });
+
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 終了
+            }
+        });
+
+        _recieveRetryDialog = builder.create();
+        _recieveRetryDialog.show();
+    }
+
+    /**
+     * 送信リトライダイアログの表示
+     * 
+     * @param context
+     */
+    protected void createTurnEndSendRetryDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle("Connection destination");
+
+        builder.setMessage("送信に失敗しました．\n リトライしますか？");
 
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
@@ -475,11 +533,11 @@ public class CommActivity extends Activity {
         _recieveRetryDialog = builder.create();
         _recieveRetryDialog.show();
     }
-    
+
     protected int getPointX(int id) {
         return id % Common.WIDTH;
     }
-    
+
     protected int getPointY(int id) {
         return id / Common.WIDTH;
     }
