@@ -180,7 +180,7 @@ public class BattleShip extends CommActivity {
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
                         ((Button) ((Activity)context).findViewById(i)).setEnabled(false);
                     }
-                    turnEndRecieve teRec = new turnEndRecieve(comm, _context);
+                    TurnEndRecieve teRec = new TurnEndRecieve(comm, _context);
                     teRec.execute();
                     teRec.isCancelled();
                 }

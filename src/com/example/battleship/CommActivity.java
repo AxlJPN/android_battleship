@@ -164,11 +164,11 @@ public class CommActivity extends Activity implements Common {
      * @author T.Sasaki
      * 
      */
-    public class turnEndRecieve extends CommModule.Recieve {
+    public class TurnEndRecieve extends CommModule.Recieve {
         static final int timeout = DEBUG ? 1 : 20000;
         String[] param = { "1" };
 
-        public turnEndRecieve(CommModule commModule, Context con) {
+        public TurnEndRecieve(CommModule commModule, Context con) {
             commModule.super(con, 8080, timeout);
         }
 
@@ -249,7 +249,7 @@ public class CommActivity extends Activity implements Common {
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
                         ((Button) findViewById(i)).setEnabled(false);
                     }
-                    turnEndRecieve teRec = new turnEndRecieve(comm, _context);
+                    TurnEndRecieve teRec = new TurnEndRecieve(comm, _context);
                     teRec.execute();
                     teRec.isCancelled();
                 } else {
@@ -298,7 +298,7 @@ public class CommActivity extends Activity implements Common {
                 if (bol) {
                     Toast.makeText(_context, "相手の番に変わります", Toast.LENGTH_SHORT).show();
                     // 相手の番が終わるまで待機
-                    turnEndRecieve rec = new turnEndRecieve(comm, _context);
+                    TurnEndRecieve rec = new TurnEndRecieve(comm, _context);
                     rec.execute();
                     rec.isCancelled();
 
@@ -516,7 +516,7 @@ public class CommActivity extends Activity implements Common {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // リトライ
-                turnEndRecieve teRec = new turnEndRecieve(comm, CommActivity.this);
+                TurnEndRecieve teRec = new TurnEndRecieve(comm, CommActivity.this);
                 teRec.execute();
             }
         });
