@@ -98,6 +98,25 @@ public class LogMsg {
     }
 
     /**
+     * ShortNameを元に船の名前を取得する
+     * 
+     * @param shortName
+     * @return
+     */
+    public static String GetShipNameByShorName(String shortName) {
+        String ret = "";
+        if (shortName.equals("B")) {
+            ret = "戦艦";
+        } else if (shortName.equals("D")) {
+            ret = "駆逐艦";
+        } else if (shortName.equals("S")) {
+            ret = "潜水艦";
+        }
+
+        return ret;
+    }
+
+    /**
      * ログを表示する
      * 
      * @param logText
