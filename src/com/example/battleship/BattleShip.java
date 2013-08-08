@@ -12,11 +12,9 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.battleship.code.AttackResult;
@@ -52,7 +50,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ボタンを動的に配置
-     * 
+     *
      * @param x
      * @param y
      */
@@ -90,7 +88,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * リストビューを追加する
-     * 
+     *
      * @param x
      */
     private void SetListView(int x) {
@@ -112,7 +110,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 選択されたテキストと同じ物を見つけてクリアする
-     * 
+     *
      * @param selectText
      */
     public void ClearButtonText(String selectText) {
@@ -159,7 +157,7 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * 配置されている船の数を返す
-     * 
+     *
      * @return 配置されている船の数
      */
     public int getShipCount() {
@@ -175,9 +173,9 @@ public class BattleShip extends CommActivity implements Common {
 
     /**
      * ゲーム開始後のボタンクリックイベント
-     * 
+     *
      * @author N.Wada
-     * 
+     *
      */
     private class OnClickButtonGameStart implements OnClickListener {
 
@@ -267,9 +265,9 @@ public class BattleShip extends CommActivity implements Common {
 
         /**
          * 攻撃先が選択された際のイベント
-         * 
+         *
          * @author N.Wada
-         * 
+         *
          */
         private class OnClickAttackButton implements OnClickListener {
 
@@ -293,7 +291,7 @@ public class BattleShip extends CommActivity implements Common {
                 AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
+
                 String logText = LogMsg.MakeAttackLogText(pointX, pointY, type, result);
                 LogMsg.AddLogMessage(logText);
             }
@@ -302,9 +300,9 @@ public class BattleShip extends CommActivity implements Common {
 
         /**
          * 移動先が選択された際のイベント
-         * 
+         *
          * @author N.Wada
-         * 
+         *
          */
         private class OnClickMoveButton implements OnClickListener {
 
@@ -316,26 +314,22 @@ public class BattleShip extends CommActivity implements Common {
 
                 Button btn = (Button) findViewById(_selectButtonId);
 
-                // 移動する船の種類を取得
                 String btnText = btn.getText().toString();
-                if (btnText.equals("B")) {
-                    type = ShipType.BATTLESHIP;
-                    ClearButtonText("B");
-                    ((Button) findViewById(v.getId())).setText("B");
-                } else if (btnText.equals("D")) {
-                    type = ShipType.DESTROYER;
-                    ClearButtonText("D");
-                    ((Button) findViewById(v.getId())).setText("D");
-                } else if (btnText.equals("S")) {
-                    type = ShipType.SUBMARINE;
-                    ClearButtonText("S");
-                    ((Button) findViewById(v.getId())).setText("S");
-                }
 
+                // 移動する船の種類を取得
+                type = getShipType(type, btnText);
+
+                // 選択されたテキストと同じ物を見つけてクリアする
+                ClearButtonText(btnText);
+
+                // 選択されたテキストを選択したマスに設定
+                ((Button) findViewById(v.getId())).setText(btnText);
+
+                // 移動
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
+
                 String logText = LogMsg.MakeMoveLogText(pointX, pointY, type);
                 LogMsg.AddLogMessage(logText);
                 // TODO 通信先にログを投げる
@@ -347,6 +341,17 @@ public class BattleShip extends CommActivity implements Common {
                 mvSend.execute();
                 // doInBackgroundの終了
                 mvSend.isCancelled();
+            }
+
+            private ShipType getShipType(ShipType type, String btnText) {
+                if (btnText.equals("B")) {
+                    type = ShipType.BATTLESHIP;
+                } else if (btnText.equals("D")) {
+                    type = ShipType.DESTROYER;
+                } else if (btnText.equals("S")) {
+                    type = ShipType.SUBMARINE;
+                }
+                return type;
             }
 
         }
@@ -372,7 +377,7 @@ public class BattleShip extends CommActivity implements Common {
 
         /**
          * 攻撃できるボタンのリストを取得する
-         * 
+         *
          * @param id
          * @return
          */
