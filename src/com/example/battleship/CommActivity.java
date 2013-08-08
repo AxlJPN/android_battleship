@@ -41,7 +41,7 @@ public class CommActivity extends Activity {
     String serverIpAddress = null;
     String clientIpAddress = null;
     
-    static final String FIRST_TURN = "先行";
+    static final String FIRST_TURN = "先攻";
     static final String SECOND_TURN = "後攻";
     String _playerFirstTurn = FIRST_TURN;
 
