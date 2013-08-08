@@ -64,7 +64,7 @@ public class CommModule {
                 mServer.setSoTimeout(_timeOut);
                 mSocket = mServer.accept();
 
-                clientIpAddress = mSocket.getInetAddress().toString();
+                clientIpAddress = mSocket.getInetAddress().getHostAddress();
                 Log.v("Socket", "client-ip:" + clientIpAddress);
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(

@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.example.battleship.code.AttackResult;
 import com.example.battleship.code.ShipType;
 
-public class BattleShip extends CommActivity implements Common {
+public class BattleShip extends CommActivity {
 
     // 変数
     BattleshipClass _battleShip = null;
@@ -145,15 +145,31 @@ public class BattleShip extends CommActivity implements Common {
             } else {
                 // ゲーム開始
                 Toast.makeText(_context, "ゲームを開始します", Toast.LENGTH_SHORT).show();
-                Toast.makeText(_context, "あなたが"+ _playerFirstTurn +"です", Toast.LENGTH_SHORT).show();
-                if(_playerFirstTurn.equals(FIRST_TURN)){
+                Toast.makeText(_context, "あなたが" + _playerFirstTurn + "です", Toast.LENGTH_SHORT)
+                        .show();
+
+                for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                    ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                }
+
+                if (_playerFirstTurn.equals(FIRST_TURN)) {
                     // 先行
+                    _playerFirstTurn = SECOND_TURN;
                     for (int i = 0; i < WIDTH * HEIGHT; i++) {
-                        ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
+                        ((Button) findViewById(i)).setEnabled(true);
                     }
-                }else{
+
+                } else {
                     // 後攻
+                    _playerFirstTurn = FIRST_TURN;
+
                     Toast.makeText(_context, "待機中", Toast.LENGTH_SHORT).show();
+                    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+                        ((Button) findViewById(i)).setEnabled(false);
+                    }
+                    turnEndRecieve teRec = new turnEndRecieve(comm, _context);
+                    teRec.execute();
+                    teRec.isCancelled();
                 }
             }
         }
@@ -175,72 +191,76 @@ public class BattleShip extends CommActivity implements Common {
         }
         return shipCount;
     }
-    
+
     /**
      * 攻撃時のログメッセージを生成する
+     * 
      * @param pointX
      * @param pointY
      * @param result
      * @return
      */
-    private String MakeAttackLogText(int pointX, int pointY, ShipType type, AttackResult result){
+    private String MakeAttackLogText(int pointX, int pointY, ShipType type, AttackResult result) {
         String attackMsg = "";
         switch (result) {
         case HIT:
             attackMsg = "命中！";
             break;
-            
+
         case NEAR:
             attackMsg = GetShipName(type) + "、水しぶき";
             break;
-            
+
         case FAIL:
             attackMsg = "攻撃命中せず";
             break;
         }
         return "【" + pointX + "," + pointY + "への攻撃】 " + attackMsg;
     }
-    
+
     /**
      * 移動時のログメッセージを生成する
+     * 
      * @param pointX
      * @param pointY
      * @param type
      * @return
      */
-    private String MakeMoveLogText(int pointX, int pointY, ShipType type){
+    private String MakeMoveLogText(int pointX, int pointY, ShipType type) {
         String shipName = GetShipName(type);
         return shipName + "が(" + pointX + "," + pointY + ")へ移動";
     }
-    
+
     /**
      * 船の名前を返す
+     * 
      * @param type
      * @return
      */
-    private String GetShipName(ShipType type){
+    private String GetShipName(ShipType type) {
         switch (type) {
         case BATTLESHIP:
             return "戦艦";
-            
+
         case DESTROYER:
             return "駆逐艦";
-            
+
         case SUBMARINE:
             return "潜水艦";
         }
-        
+
         return null;
     }
-    
+
     /**
      * ログを表示する
+     * 
      * @param logText
      */
-    private void AddLogMessage(String logText){
+    private void AddLogMessage(String logText) {
         // TODO ログを表示する
-//        _logAdapter.add(logText);
-//        _logAdapter.notifyDataSetChanged();
+        // _logAdapter.add(logText);
+        // _logAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -363,7 +383,7 @@ public class BattleShip extends CommActivity implements Common {
                 AttackResult result = _battleShip.AttackEnemy(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
+
                 String logText = MakeAttackLogText(pointX, pointY, type, result);
                 AddLogMessage(logText);
             }
@@ -405,17 +425,15 @@ public class BattleShip extends CommActivity implements Common {
                 _battleShip.Movement(pointX, pointY, type);
                 ClearButtonColor();
                 SetGameStartEvent();
-                
+
                 String logText = MakeMoveLogText(pointX, pointY, type);
                 AddLogMessage(logText);
 
-                // 自分の番が終了する
-                Toast.makeText(BattleShip.this, "自分の番を終了します", Toast.LENGTH_SHORT).show();
                 // 終了したことを相手側に送信する
                 moveSend mvSend = new moveSend(comm, BattleShip.this);
                 mvSend.execute();
                 // doInBackgroundの終了
-                mvSend.isCancelled();
+                // mvSend.isCancelled();
             }
 
         }
