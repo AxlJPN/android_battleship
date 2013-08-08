@@ -37,6 +37,9 @@ public class CommActivity extends Activity implements Common {
     static final String SECOND_TURN = "後攻";
     String _playerFirstTurn = FIRST_TURN;
 
+    static final String ATTACK_TURN = "1";
+    static final String MOVE_TURN = "2";
+
     CommModule comm = null;
 
     protected String _shortName = null;
@@ -138,14 +141,14 @@ public class CommActivity extends Activity implements Common {
                 _alertDialog.show();
             } else {
                 if (bol) {
-                    Toast.makeText(_context, "送信しました", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, "接続しました", Toast.LENGTH_SHORT).show();
                     _sendDialog.dismiss();
 
                     // 船を配置するダイアログを表示
                     _alertDialog = createSelectShipDialog(CommActivity.this);
                     _alertDialog.show();
                 } else {
-                    Toast.makeText(_context, "送信できませんでした", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, "接続できませんでした", Toast.LENGTH_SHORT).show();
                     // リトライ
                     showSendDialog();
                 }
@@ -179,16 +182,23 @@ public class CommActivity extends Activity implements Common {
             if (result == null) {
                 Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
                 createTurnEndRecieveRetryDialog(_context);
-            } else if (result.equals("1")) {
-                Toast.makeText(_context, "自分の番です", Toast.LENGTH_SHORT).show();
+            } else {
+                // 分割
+                String[] params = result.split(",");
+
+                LogMsg.AddLogMessage("自分の番です");
                 for (int i = 0; i < WIDTH * HEIGHT; i++) {
                     ((Button) findViewById(i)).setEnabled(true);
                 }
 
-                if (result.equals("攻撃")) {
+                if (params[0].equals(ATTACK_TURN)) {
                     // 相手側が攻撃を行ったとき
-                } else if (result.equals("移動")) {
+                    LogMsg.AddLogMessage("相手が攻撃をしました");
+                    // 攻撃判定
+
+                } else if (params[0].equals(MOVE_TURN)) {
                     // 相手側が移動を行ったとき
+                    LogMsg.AddLogMessage(params[1]);
                 }
 
             }
@@ -202,15 +212,18 @@ public class CommActivity extends Activity implements Common {
      * 
      */
     public class moveSend extends CommModule.Send {
-        public moveSend(CommModule commModule, Context con) {
+        String logText = null;
+
+        public moveSend(CommModule commModule, Context con, String log) {
             commModule.super(con, _otherIpAddress);
             Log.v("send", "sendToIp:" + _otherIpAddress);
+            logText = log;
         }
 
         @Override
         protected Boolean doInBackground(String... args0) {
             // 移動したのでパラメータを送信する
-            return super.doInBackground("1");
+            return super.doInBackground("2," + logText);
         }
 
         @Override
@@ -218,7 +231,7 @@ public class CommActivity extends Activity implements Common {
             super.onPostExecute(bol);
 
             // 自分の番が終了する
-            Toast.makeText(_context, "自分の番を終了します", Toast.LENGTH_SHORT).show();
+            LogMsg.AddLogMessage("自分の番を終了します");
 
             if (DEBUG) {
                 // デバッグ時
@@ -234,9 +247,9 @@ public class CommActivity extends Activity implements Common {
                     teRec.execute();
                     teRec.isCancelled();
                 } else {
-                    Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
+                    LogMsg.AddLogMessage("通信出来ませんでした");
                     // リトライ
-                    createTurnEndSendRetryDialog(_context);
+                    createTurnEndSendRetryDialog(_context, logText);
                 }
             }
         }
@@ -276,7 +289,7 @@ public class CommActivity extends Activity implements Common {
                     rec.execute();
                     rec.isCancelled();
                 } else {
-                    Toast.makeText(_context, "通信出来ませんでした", Toast.LENGTH_SHORT).show();
+                    LogMsg.AddLogMessage("通信出来ませんでした");
                     // リトライ
 
                 }
@@ -504,7 +517,9 @@ public class CommActivity extends Activity implements Common {
      * 
      * @param context
      */
-    protected void createTurnEndSendRetryDialog(Context context) {
+    protected void createTurnEndSendRetryDialog(Context context, String logText) {
+        final String log = logText;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setIcon(R.drawable.ic_launcher);
@@ -516,7 +531,7 @@ public class CommActivity extends Activity implements Common {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // リトライ
-                moveSend mvSend = new moveSend(comm, CommActivity.this);
+                moveSend mvSend = new moveSend(comm, CommActivity.this, log);
                 mvSend.execute();
                 // doInBackgroundの終了
                 mvSend.isCancelled();

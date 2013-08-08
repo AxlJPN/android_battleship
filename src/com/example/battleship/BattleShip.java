@@ -148,9 +148,13 @@ public class BattleShip extends CommActivity {
                 _alertDialog.show();
             } else {
                 // ゲーム開始
-                Toast.makeText(_context, "ゲームを開始します", Toast.LENGTH_SHORT).show();
-                Toast.makeText(_context, "あなたが" + _playerFirstTurn + "です", Toast.LENGTH_SHORT)
-                        .show();
+                // Toast.makeText(_context, "ゲームを開始します",
+                // Toast.LENGTH_SHORT).show();
+                // Toast.makeText(_context, "あなたが" + _playerFirstTurn + "です",
+                // Toast.LENGTH_SHORT)
+                // .show();
+                LogMsg.AddLogMessage("ゲームを開始します");
+                LogMsg.AddLogMessage("あなたが" + _playerFirstTurn + "です");
 
                 for (int i = 0; i < WIDTH * HEIGHT; i++) {
                     ((Button) findViewById(i)).setOnClickListener(new OnClickButtonGameStart());
@@ -177,7 +181,6 @@ public class BattleShip extends CommActivity {
                 }
             }
         }
-
     }
 
     /**
@@ -360,10 +363,10 @@ public class BattleShip extends CommActivity {
                 SetGameStartEvent();
 
                 // 終了したことを相手側に送信する
-                moveSend mvSend = new moveSend(comm, BattleShip.this);
+                moveSend mvSend = new moveSend(comm, BattleShip.this, "敵" + logText);
                 mvSend.execute();
                 // doInBackgroundの終了
-                // mvSend.isCancelled();
+                mvSend.isCancelled();
             }
 
             private ShipType getShipType(ShipType type, String btnText) {
