@@ -18,6 +18,7 @@ public class BattleshipClass {
         ship.HitPoint = 3;
         ship.PositionX = 0;
         ship.PositionY = 0;
+        ship.Sink = false;
         ships.put(ShipType.BATTLESHIP, ship);
 
         // 駆逐艦を追加
@@ -26,6 +27,7 @@ public class BattleshipClass {
         ship.HitPoint = 2;
         ship.PositionX = 0;
         ship.PositionY = 0;
+        ship.Sink = false;
         ships.put(ShipType.DESTROYER, ship);
 
         // 潜水艦を追加
@@ -34,6 +36,7 @@ public class BattleshipClass {
         ship.HitPoint = 1;
         ship.PositionX = 0;
         ship.PositionY = 0;
+        ship.Sink = false;
         ships.put(ShipType.SUBMARINE, ship);
     }
 
@@ -50,6 +53,7 @@ public class BattleshipClass {
         public int PositionX; // 位置X
         public int PositionY; // 位置Y
         public int AttackPower; // 攻撃力
+        public boolean Sink; // 沈没フラグ
     }
 
     /**
@@ -111,7 +115,7 @@ public class BattleshipClass {
             int x = ships.get(type).PositionX;
             int y = ships.get(type).PositionY;
 
-            if (x == pointX && y == pointY) {
+            if ((x == pointX && y == pointY) && !ships.get(type).Sink) {
                 // X軸、Y軸ともにどんぴしゃの場合
                 // HPを減らす
                 ships.get(type).HitPoint -= attackPower;
@@ -121,6 +125,12 @@ public class BattleshipClass {
 
                 if (ret != AttackResult.HIT)
                     ret = AttackResult.HIT;
+                if (IsSink(type)) {
+                    // 沈没した場合
+                    // TODO 通信先に「【種類】を撃沈！」を表示
+                    // TODO 自分のログに「【種類】が沈没！」を表示
+                    ships.get(type).Sink = true;
+                }
             } else if ((x + 1 == pointX && y + 1 == pointY) || (x + 1 == pointX && y - 1 == pointY)
                     || (x - 1 == pointX && y + 1 == pointY) || (x - 1 == pointX && y - 1 == pointY)) {
                 // X軸±1、Y軸±1の場合
@@ -129,13 +139,21 @@ public class BattleshipClass {
 
                 if (ret == AttackResult.FAIL)
                     ret = AttackResult.NEAR;
-            } else if (/* ヒットかつ耐久力0 */true) {
-                // TODO 沈没
             }
         }
 
         // TODO 通信先に投げる
-
         return ret;
+    }
+
+    /**
+     * 攻撃結果、船が沈没したか判定
+     * 
+     * @param type
+     * @return
+     */
+    private boolean IsSink(ShipType type) {
+        int hitPoint = ships.get(type).HitPoint;
+        return hitPoint == 0 ? true : false;
     }
 }
